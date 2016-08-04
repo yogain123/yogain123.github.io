@@ -1,0 +1,817 @@
+<?php
+if(isset($_POST["submit"])){
+$hostname='mysql.hostinger.in';
+$username='u401091106_root';
+$password='62015400';
+
+
+
+ /*$email = $_POST["email"];
+  //$headers= "From: help_poor@bloomingbeacon.org";
+  $ph = $_POST["phno"];
+  $msg = $_POST["comment"]."   ".$ph."    ".$_POST["name"]."      ".$email;
+  $yogi = "bloomingbeacon.official@gmail.com";
+  
+  $headers = "From: help_poor@bloomingbeacon.org";
+  $headers .= "\r\nReply-To: help_poor@bloomingbeacon.org";
+  $headers .= "\r\nX-Mailer: PHP/".phpversion();   */
+  
+
+
+
+
+
+
+try {
+$dbh = new PDO("mysql:host=$hostname;dbname=u401091106_yogi",$username , $password);
+
+$dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION); // <== add this line
+$sql = "INSERT INTO team (name, email, phno , comment)
+VALUES ('".$_POST["name"]."','".$_POST["email"]."','".$_POST["phno"]."' , '".$_POST["comment"]."')";
+if ($dbh->query($sql))
+ {
+    //mail($yogi,"Blooming Beacon", $msg, $headers,"-f help_poor@bloomingbeacon.org");
+    echo "<script type= 'text/javascript'>alert('success');</script>";
+}
+else
+{
+    echo "<script type= 'text/javascript'>alert('Message Sent Failed');</script>";
+}
+
+$dbh = null;
+}
+catch(PDOException $e)
+{
+echo $e->getMessage();
+}
+
+}
+?>
+
+
+
+
+<!DOCTYPE HTML>
+<html>
+<head>
+<title>Yogendra Saxena</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="keywords" content="Personale Responsive web template, Bootstrap Web Templates, Flat Web Templates, Andriod Compatible web template, 
+Smartphone Compatible web template, free webdesigns for Nokia, Samsung, LG, SonyErricsson, Motorola web design" />
+<script type="applijegleryion/x-javascript"> addEventListener("load", function() { setTimeout(hideURLbar, 0); }, false); function hideURLbar(){ window.scrollTo(0,1); } </script>
+<link href="css/bootstrap.css" rel='stylesheet' type='text/css' />
+<!-- Custom Theme files -->
+<link href="css/style.css" rel='stylesheet' type='text/css' />	
+<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-social/4.10.1/bootstrap-social.css" rel="stylesheet" >
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+<script src="js/jquery-1.11.1.min.js"></script>
+<!--webfonts-->
+<link href='//fonts.googleapis.com/css?family=Candal|Raleway:500,600,400' rel='stylesheet' type='text/css'>
+<!--//webfonts-->
+<script type="text/javascript" src="js/move-top.js"></script>
+<script type="text/javascript" src="js/easing.js"></script>
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+
+<!-- jQuery library -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+
+<!-- Latest compiled JavaScript -->
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+<!--/script-->
+<script type="text/javascript">
+			jQuery(document).ready(function($) {
+				$(".scroll").click(function(event){		
+					event.preventDefault();
+					$('html,body').animate({scrollTop:$(this.hash).offset().top},900);
+				});
+			});
+</script>
+
+
+<style type="text/css">
+        .hola
+       {
+      background-color:#808080;
+        }
+
+	.experience
+	{
+		background-color:#ccc;
+	}
+	#spacing
+	{line-height:30px;}
+
+
+	p.colorit
+	{
+		COLOR: white;
+	}
+</style>
+
+<script type="text/javascript">	
+
+$(function(){
+	$("#yoyo").mouseover(function(){
+  $(this).css('font-size', '30px');
+});
+
+});
+</script>
+
+<style type="text/css">
+	.footer {
+    background: #0080FF;
+    padding: 10px 0;
+}
+
+.footer a {
+    color: White;
+    font-size: 20px;
+    padding: 10px;
+        -webkit-transition: all .5s ease;
+    transition: all .5s ease;
+}
+
+.footer a:first-child {
+    border-left: 1px solid #70726F;
+}
+
+.footer a:hover {
+    color: white;
+    -webkit-transition: all .5s ease;
+    transition: all .5s ease;
+
+}
+
+
+
+</style>
+<link rel="shortcut icon" href="ys.ico"/> 
+</head>
+<body>
+<!--start-home-->
+					
+		<div class="banner bg bg-primary" id="home">
+			<div class="header-top">
+				<div class="container"  style="background:IndianRed ">	
+					<!--top-nav-->
+					<span class="menu"> </span>
+					<div class="top-menu">
+						<nav>
+
+
+
+
+
+
+							<ul class="cl-effect-16">
+								<li><a class="active scroll" href="#home" data-hover="Home">Home</a></li>
+								<li><a class="scroll" href="#about" data-hover="About">About</a></li>
+								<li><a class="scroll" href="#experience" data-hover="experience">experience</a></li>
+								<li><a class="scroll" href="#education" data-hover="experience">education</a></li>
+								<li><a class="scroll" href="#project" data-hover="experience">project</a></li>
+								<li><a class="scroll" href="#skill" data-hover="Skills">Skills</a></li>
+								
+								<li><a class="scroll" href="#SA" data-hover="SA">Scholastic Achievements</a></li>
+								<li><a class="scroll" href="#contact" data-hover="Contact">Contact</a></li>
+								<div class="clearfix"></div>
+							</ul>
+						</nav>		
+					</div>
+					<div class="login-pop">
+						<div id="loginpop" class = "bg bg-success"><a href="yogendra_resume_new.pdf"><span>View My Resume<i class="arrow glyphicon glyphicon-chevron-right"></i></span></a>
+								
+					    </div>
+					</div>
+
+					<script src="js/menu_jquery.js"></script>
+
+				<!-- script-for-menu -->
+								<script>
+									$("span.menu").click(function(){
+										$(".top-menu ul").slideToggle("slow" , function(){
+										});
+									});
+								</script>
+								<!-- script-for-menu -->
+
+				 <div class="clearfix"></div>
+			<!-- script-for-menu -->
+		    </div>
+		  </div>
+		<!--banner-->	
+		<div class="container">	
+		      <!-- script-for-menu -->	  	 
+				  <div class="banner-info">	
+						 <div class="logo">
+						<a><h1>Yogendra Saxena</h1></a>
+						  </div>
+						<p id="spacing"><font size="4px" color = "white">Hii Everyone , My name is Yogendra Saxena, I am currently working as an Application Developer (Security) in <a href="http://www.unisys.com"><font color = "white"><strong>UNISYS CORPORATION</strong></font></a> , Bangalore , I am a Techie guy and very proficient in JAVA programming Language. I am basically from kanpur and I did my B.Tech from SRM University, Kattankulathur Campus , Chennai . My power to achieve my desire is my Dedication. I am looking to work for an Organization which involves Coding and works on Real time project, To know more about me please Scroll down</font></p>
+						<div class="scroll-down">
+						 <h4>SCROLL DOWN</h4>
+						<a class="downarrow scroll" href="#about"><span></span></a>
+						</div>
+				  </div>
+			</div>
+		</div>
+	<!--about-->
+	<div class="about" id="about">
+	   <div class="container">
+	   <h3 class="tittle">About Me</h3>
+	      <div class="col-md-5 ab-grid pic">
+		  <img src="images/ab.jpg" alt=" " title="ab" height="380">
+		  </div>
+		  <div class="col-md-7 ab-grid text">
+		   <font size="3px"> <h4>I am Yogendra Saxena, I live in Bangalore. I am Application Developer in Security Domain, UNISYS Corporation India</h4>
+		    <h7>I am a Founder of two small organization i.e <a href = "http://www.bloomingbeacon.in">Blooming Beacon</a> and <a href = "http://www.onlinestudysource.in">E-Learning. </a></h7><br>
+		    <h7>I worked on Many projects and have skills in many domains <br>
+		    My Career Objective is to be associated with a progressive organization which can provide me with a dynamic work sphere to extract my inherent skills as a Professional, use and develop my aptitude to further the organization’s objectives and also attain my career targets in the progress. I am always on a look for Something Big and New. </h7>
+		  </div>
+		  <div class="clearfix"> </div>
+	   </div>
+    </div>	   
+	<!--//about-->
+
+
+
+
+
+<!-- education starts-->
+
+
+	<!-- Education ends-->
+
+
+
+
+
+
+
+	<!--experience-starts-->
+	<div class="experience" id="experience">
+		<div class="container">
+				<h3 class="tittle four"><u>Education</u></h3>
+				<div class="experience-main">
+					<span class="devide-line"></span>
+					<div class="experience-left">
+						<span class="glyphicon glyphicon-education" aria-hidden="true"></span>
+						<h4><u>X</u><sup>th</sup><u> Class</u></h4>
+						<h5>ICSE Board , Science</h5>
+						
+						<p>I completed my class 10th from Mother Teresa Mission Higher Secondary School, Kanpur with Majors in Science<br>
+						Percentage : 88 %</p>
+					</div>
+					<div class="experience-left-snd">
+						<span class="glyphicon glyphicon-education" aria-hidden="true"></span>
+					</div>
+					<div class="experience-right-snd">
+						<h4><u>XII</u><sup>th</sup><u> Class</u></h4>
+						<h5>ISC Board , PCM and Computer Appication</h5>
+						
+						<p>I completed my class 12th from Mother Teresa Mission Higher Secondary School, Kanpur with Majors in Physics , Chemistry, Maths and Computer<br>
+						Percentage : 91 %</p>
+					</div>
+					<div class="experience-left-trd">
+						<span class="glyphicon glyphicon-education" aria-hidden="true"></span>
+						<h4><u>Graduation ( B.Tech )</u> (2012-2016)</h4>
+						<h5>SRM University , Kattankulathur Campus , Cheanni</h5>
+						<a href="http://www.srmuniv.ac.in"><h7>www.srmuniv.ac.in</h7></a>
+						<p>I completed My Btech from SRM University with majors in Computer Science Engg ,  8.5 CGPA</p>
+					</div>
+
+					<div class="clearfix"> </div>
+				</div>
+		</div>
+	</div>
+
+
+
+
+
+
+
+
+<div class="experience" id="education">
+		<div class="container">
+				<h3 class="tittle four"><u>Experience</u></h3>
+				<div class="experience-main">
+					<span class="devide-line"></span>
+					<div class="experience-left">
+						<span class="glyphicon glyphicon-briefcase" aria-hidden="true"></span>
+						<h4><u>UNISYS CORPORATION</u></h4>
+						<h5>Application Developer in Security (Jan-2016 to Present)</h5>
+						<a href="http://www.unisys.com"><h7>www.unisys.com</h7></a>
+						<p>Unisys Corporation is an American global information technology company based in Blue Bell, Pennsylvania, that provides a portfolio of IT services, software, and technology. In 2014, CRN ranked Unisys Stealth on its list of <strong>Top 10 products for combatting advanced persistent threat</strong> and ranked the Unisys Forward! platform among the <strong>Top 10 coolest servers of 2014</strong></p>
+					</div>
+					<div class="experience-left-snd">
+						<span class="glyphicon glyphicon-briefcase" aria-hidden="true"></span>
+					</div>
+					<div class="experience-right-snd">
+						<h4><u>Founder of Blooming Beacon</u></h4>
+						<h5>Non Government Organization ( NGO ) (Jan-2015 to Present)</h5>
+						<a href="http://www.bloomingbeacon.in"><h7>www.bloomingbeacon.in</a>
+						<p>The Blooming Beacon is a student NGO, striving towards bringing about a cornucopia of change in lives of homeless, needy and orphans. It is a group of socially responsible university students who volunteer for a cause that promotes social equality and indifference</p>
+					</div>
+					<div class="experience-left-trd">
+						<span class="glyphicon glyphicon-briefcase" aria-hidden="true"></span>
+						<h4><u>Founder of E-Learning</u></h4>
+						<h5>Educational Website (Oct-2014 to Present)</h5>
+						<a href="http://www.onlinestudysource.in"><h7>www.onlinestudysource.in</h7></a>
+						<p>E-Learning is for the people who have big dreams to get placements in top MNC's of the world but they don't have anyone to guide them. This is simply an online Education portal and also provide some Educational information to get success in life . It provide study material to crack CAT and GATE and also recommends best books to prepare for the Same. It also give information about online courses to do to get proper knowledge regarding the Course</p>
+
+					</div>
+					
+					
+				</div>
+		</div>
+	</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	<!--experience-end-->
+	
+<!-- project starts-->
+<div class="experience" id="project">
+		<div class="container">
+				<h3 class="tittle four"><u>Projects</u></h3>
+				<div class="experience-main">
+					<span class="devide-line"></span>
+					<div class="experience-left">
+						<span class="glyphicon glyphicon-star" aria-hidden="true"></span>
+						<h4><u>Library of Electronic Identity and Artificats (LEIDA)</u></h4>
+						<h5>Under UNISYS Security Management</h5>
+						
+						<p>We build a library of biometric stuffs i.e Electronics Identity and make user details more Secure. Developed a User most Secure Form with all validation and Security using <strong>HTML/CSS, Bootstrap,JavaScript, AngularJS ,JQuery, Spring MVC, Hibernate and a DataBase</strong> </p>
+					</div>
+					<div class="experience-left-snd">
+						<span class="glyphicon glyphicon-star" aria-hidden="true"></span>
+					</div>
+					<div class="experience-right-snd">
+						<h4><u>Blooming Beacon</u></h4><br>
+						<a href="http://www.bloomingbeacon.in"><h7>www.bloomingbeacon.in</h7></a>
+						
+						<p>Its a NGO that Focus on 3 domain i.e Women Empowerment, Youth Affair and Social Development. Language used to make this are <strong>HTML/CSS, Bootstrap, JavaScript, JQuery and Basic PHP</strong></p>
+
+					</div>
+					<div class="experience-left-trd">
+						<span class="glyphicon glyphicon-star" aria-hidden="true"></span>
+						<h4><u>E-Learning</u></h4><br>
+						<a href="http://www.onlinestudysource.in"><h7>www.onlinestudysource.in</h7></a>
+						<p>This is a site for online Education Protal , It provide Study Material for Higher Education. It has 6000 Users Globally (Statics Fetched through Google Analytics). Language Used to make this are <strong>HTML/CSS, JavaScript, and Weebly Technology</strong></p>
+					</div>
+					<div class="clearfix"> </div>
+				</div>
+		</div>
+	</div>
+
+
+
+	<div class="experience" id="experience">
+		<div class="container">
+				
+				<div class="experience-main">
+					<span class="devide-line"></span>
+					<div class="experience-left">
+						<span class="glyphicon glyphicon-star" aria-hidden="true"></span>
+						<h4><u>Chat Application</u></h4>
+						<p>
+							Its a messanger to chat with people when connected to the Same Network . It is basically made for the hostel student so that they can chat with thier friends living on some other floor of hostel while connected to the Same Network. Language used <strong>Java and Computer Networks Concepts</strong>
+						</p>
+					</div>
+					<div class="experience-left-snd">
+						<span class="glyphicon glyphicon-star" aria-hidden="true"></span>
+					</div>
+					<div class="experience-right-snd">
+						<h4><u>Ping Pong Game</u></h4><br>
+						<a href="http://www.codeskulptor.org/#user30_2FZdCfI8Mv_3.py">CodeSkulptor</a>
+						<p>This is a Game which can be played by two player at a time. In this the players has to defend their balls from crossing their boundary.
+						Language Used : <strong>Pyhon</strong></p>
+					</div><
+					<div class="experience-left-trd">
+						<span class="glyphicon glyphicon-star" aria-hidden="true"></span>
+						<h4><u>SpcaeShip Game</u></h4><br>
+						
+						<a href="http://www.codeskulptor.org/#user31_IZw86AtdBK_1.py"><h7>CodeSkulptor</h7></a>
+						<p>This is a Game which can be played by Single player. In this the player has a Spaceship and he has to protect the spaceship from many obstracle and Destroy enemy</p>
+					</div>
+					
+					<div class="clearfix"> </div>
+				</div>
+		</div>
+	</div>
+
+
+
+
+
+<!--project Ends -->
+<!--my-skill-->
+  <div class="my-skills text-center" id="skill">
+	<div class="container">
+		<h3 class="tittle"><font color = "Yellow">My Skills</font></h3>
+		<div class="skill-grids">
+					<div class="col-md-2 skills-grid text-center">
+						<div class="circle" id="circles-1"></div>
+						<p class="colorit">Java</p>
+						<br><br><br>
+					</div>
+					<div class="col-md-2 skills-grid text-center">
+						<div class="circle" id="circles-2"></div>
+						<p class="colorit">c/c++</p>
+						<br><br><br>
+					</div>
+					<div class="col-md-2 skills-grid text-center">
+						<div class="circle" id="circles-3"></div>
+						<p class="colorit">Python</p>
+						<br><br><br>
+					</div>
+
+					<div class="col-md-2 skills-grid text-center">
+						<div class="circle" id="circles-4"></div>
+						<p class="colorit">Html 5 / CSS 3</p>
+						<br><br><br>
+					</div>
+					<div class="col-md-2 skills-grid text-center">
+						<div class="circle" id="circles-5"></div>
+						<p class = "colorit">JavaScript</p>
+						<br><br><br>
+					</div>
+					<div class="col-md-2 skills-grid text-center">
+						<div class="circle" id="circles-6"></div>
+						<p class="colorit">JQuery</p>
+						<br><br><br>
+					</div>
+			</div>
+
+			<div class="skill-grids">
+
+					<div class="col-md-2 skills-grid text-center">
+						<div class="circle" id="circles-7"></div>
+						<p class="colorit">AngularJS</p>
+					</div>
+					<div class="col-md-2 skills-grid text-center">
+						<div class="circle" id="circles-8"></div>
+						<p class="colorit">AJAX</p>
+					</div>
+
+					
+					<div class="col-md-2 skills-grid text-center">
+						<div class="circle" id="circles-9"></div>
+						<p class="colorit">BootStrap</p>
+					</div>
+					<div class="col-md-2 skills-grid text-center">
+						<div class="circle" id="circles-10"></div>
+						<p class="colorit">Spring</p>
+					</div>
+					<div class="col-md-2 skills-grid text-center">
+						<div class="circle" id="circles-11"></div>
+						<p class="colorit">Hibernate</p>
+					</div>
+					<div class="col-md-2 skills-grid text-center">
+						<div class="circle" id="circles-12"></div>
+						<p class="colorit">MySql</p><br><br>
+					</div>
+			</div>
+
+			<div class="skill-grids">
+
+					<div class="col-md-2 skills-grid text-center">
+						<div class="circle" id="circles-13"></div>
+						<p class="colorit">Data-Structure</p>
+					</div>
+					<div class="col-md-2 skills-grid text-center">
+						<div class="circle" id="circles-14"></div>
+						<p class="colorit">Design And Analysis of Algorithm</p>
+					</div>
+
+					
+					<div class="col-md-2 skills-grid text-center">
+						<div class="circle" id="circles-15"></div>
+						<p class="colorit">DBMS</p>
+					</div>
+					<div class="col-md-2 skills-grid text-center">
+						<div class="circle" id="circles-16"></div>
+						<p class="colorit">Operating System</p>
+					</div>
+					<div class="col-md-2 skills-grid text-center">
+						<div class="circle" id="circles-17"></div>
+						<p class="colorit">Computer Networks</p>
+					</div>
+					<div class="col-md-2 skills-grid text-center">
+						<div class="circle" id="circles-18"></div>
+						<p class="colorit">Theory Of Computation</p>
+					</div>
+					
+			</div>
+
+
+<!-- ADD below more skills -->
+
+		<!--	<div class="skill-grids">
+
+					<div class="col-md-2 skills-grid text-center">
+						<center><div class="circle" id="circles-13"></div></center>
+						<p>MySql</p><br><br>
+					</div>
+			</div>  -->
+					
+		
+				
+		
+</div>
+</div>
+
+
+ <script type="text/javascript" src="js/circles.js"></script>
+					         <script>
+								var colors = [
+										['#f6608a', '#ffffff'], ['#f6608a', '#ffffff'], ['#f6608a', '#ffffff'], ['#f6608a', '#ffffff'], ['#f6608a', '#ffffff'], ['#ffffff','#f6608a']
+									];
+									var percentage;
+								for (var i = 1; i <= 18; i++) {
+									var child = document.getElementById('circles-' + i);
+										if(i==1)
+											percentage = 90;
+										else if(i==2)
+											percentage = 60;
+										else if(i==3)
+											percentage = 50;
+										else if(i==4)
+											percentage = 90;
+										else if(i==5)
+											percentage = 80;
+										else if(i==6)
+											percentage = 80;
+										else if(i==7)
+											percentage = 80;
+										else if(i==8)
+											percentage = 70;
+										else if(i==9)
+											percentage = 90;
+										else if(i==10)
+											percentage = 80;
+										else if(i==11)
+											percentage = 80;
+										else if(i==12)
+											percentage = 80;
+										else if(i==13)
+											percentage = 80;
+										else if(i==14)
+											percentage = 80;
+										else if(i==15)
+											percentage = 80;
+										else if(i==16)
+											percentage = 70;
+										else if(i==17)
+											percentage = 60;
+										else if(i==18)
+											percentage = 60;
+										
+									Circles.create({
+										id:         child.id,
+										percentage: ,
+										radius:     80,
+										width:      10,
+										//number:   	percentage / 1,
+										text:       'hey',
+										colors:     colors[5]
+									});
+								}
+						
+				</script>
+
+
+
+
+
+
+<!--//my-skill-->
+
+
+<!--//my-skill-->
+
+
+
+<!-- projects -->
+		<div class="projects" id="project">
+			<div class="container">
+				<div class="project-grids">
+					<div class="cycle">
+						<span> </span>
+					</div>
+					<div class="project-grid total-project">
+						<p>8</p>
+						<h4>Projects</h4>
+						<span> <i class="glyphicon glyphicon-edit"> </i></span>
+					</div>
+					<div class="project-grid clientsgrid">
+						<div>
+						<h4>Dedication</h4>
+						</div>
+						<span> <i class="glyphicon glyphicon-user"> </i></span>
+					</div>
+					<div class="project-grid people-grid">
+						<div>
+						<p>100%</p>
+						<h4>Goal Oriented</h4>
+						</div>
+						<span> <i class="glyphicon glyphicon-thumbs-up"> </i></span>
+					</div>
+					<div class="clearfix"> </div>
+				</div>
+			</div>
+		</div>
+		<!-- projects -->
+		<!--portfolio-->
+		<script src="js/jquery.chocolat.js"></script>
+			<link rel="stylesheet" href="css/chocolat.css" type="text/css" media="screen" charset="utf-8">
+			<!--light-box-files -->
+			<script type="text/javascript" charset="utf-8">
+			$(function() {
+				$('.gallery a').Chocolat();
+			});
+			</script>
+
+	<!--<div class="gallery" id="port">
+		<div class="container">
+			<h3 class="tittle port">Portfolio</h3>
+		   <div class="gallery-bottom">
+					<div class="col-md-4 bottom-gallery">
+						<a href="images/g1.jpg" rel="title" class="b-link-stripe b-animate-go  thickbox">
+						<img class="img-responsive" src="images/g1.jpg" />
+						<div class="b-wrapper">
+						  <h3 class="b-animate b-from-left    b-delay03 "> </h3>
+						</div>
+	                    </a>
+					</div>
+					<div class="col-md-4 bottom-gallery">
+						<a href="images/g2.jpg" rel="title" class="b-link-stripe b-animate-go  thickbox">
+						<img class="img-responsive" src="images/g2.jpg" />
+						<div class="b-wrapper">
+						  <h3 class="b-animate b-from-left    b-delay03 "> </h3>
+						</div>
+	                      </a>
+					</div>
+					<div class="col-md-4 bottom-gallery">
+						<a href="images/g3.jpg" rel="title" class="b-link-stripe b-animate-go  thickbox">
+						<img class="img-responsive" src="images/g3.jpg" />
+						<div class="b-wrapper">
+						  <h3 class="b-animate b-from-left    b-delay03 "> </h3>
+						</div>
+	                      </a>
+					</div>
+					<div class="col-md-4 bottom-gallery">
+						<a href="images/g4.jpg" rel="title" class="b-link-stripe b-animate-go  thickbox">
+						<img class="img-responsive" src="images/g4.jpg" />
+						<div class="b-wrapper">
+						  <h3 class="b-animate b-from-left    b-delay03 "> </h3>
+						</div>
+	                      </a>
+					</div>
+					<div class="col-md-4 bottom-gallery">
+						<a href="images/g5.jpg" rel="title" class="b-link-stripe b-animate-go  thickbox">
+						<img class="img-responsive" src="images/g5.jpg" />
+						<div class="b-wrapper">
+						  <h3 class="b-animate b-from-left    b-delay03 "> </h3>
+						</div>
+	                      </a>
+					</div>
+					<div class="col-md-4 bottom-gallery">
+						<a href="images/g6.jpg" rel="title" class="b-link-stripe b-animate-go  thickbox">
+						<img class="img-responsive" src="images/g6.jpg" />
+						<div class="b-wrapper">
+						  <h3 class="b-animate b-from-left    b-delay03 "> </h3>
+						</div>
+	                      </a>
+					</div>
+					<div class="clearfix"> </div>
+			</div>
+			
+		</div>
+	</div>
+		<script src="js/jquery.chocolat.js"></script>
+		<link rel="stylesheet" href="css/chocolat.css" type="text/css" media="screen" charset="utf-8">
+		<!--light-box-files -->
+		<!-- Javascript calls -->
+		<script type="text/javascript" charset="utf-8">
+				$(function() {
+					$('#port a').Chocolat({overlayColor:'#000',leftImg:'images/leftw.gif',rightImg:'images/rightw.gif',closeImg:'images/closew.gif'});
+				});
+		</script>
+
+<!--//portfolio-->
+<div class="gallery hola SA" id="SA">
+<div class = "container">
+<h1><font color = "black"><center><u><font color = "black"><strong>Scholarist Achivements</strong> </font></u></center></font></h1><br>
+<center>
+<ul>
+<li><font size = "4px">Secured All India Rank 9500 ( Top 1.9 %) in IIT-JEE amoung 5,00,000 participants</font></li><br>
+<li><font size = "4px">Secured All India Rank 15000 ( Top 1.87 %) in AIEEE amoung 8,00,000 participants</font></li><br>
+<li><font size = "4px">Oracle Certified in Java Programming Language using Java SE6 through NIIT</font></li><br>
+<li><font size = "4px">Online Verified Course in Interactive Programming in Python , Rice University , USA</font></li><br>
+<li><font size = "4px">1st Runner up in the Coding Event named “What’s the Fuss” under National Level Techno-
+Management Fest <br>and Won price money Rs. 5000</font></li><br>
+<li><font size = "4px">Worked as a Committee Member in College event named “Market Mayhem”</font></li><br>
+<li><font size = "4px">Worked as a Committee Member for the “Game Development” Workshop</font></li><br>
+<li><font size = "4px">Participated in Python Workshop held in college</font></li><br>
+<li><font size = "4px">Done NCC (National Cadet Corp) with 2 camps and achieved B - Certificate</font></li><br>
+<li><font size = "4px">Won Scholarship for being one of the best Candidate in NCC</font></li><br>
+<li><font size = "4px">Won Oracle T-Shirt in the Oracle Development Event held in College</font></li><br>
+<li><font size = "4px">Attained Yellow Belt in Taekwondo</font></li>
+</ul></center>
+</div>
+</div>
+
+ <!--start-contact-->
+	 <div class="contact_desc bg bg-success" id="contact">
+		        <div class="container">
+		        	<form role = "form" method="post">
+		        	<h3 class="tittle">Contact Me</h3>
+			         <div class="contact-form">
+				  	   <div class="col-lg-6">
+					    	<div>
+						    	<span><label><font color="black">NAME</font></label></span>
+						    	<span><input name="name" type="text" class="textbox" placeholder="Enter Your Name" ></span>
+						    </div>
+						    <br>
+						    <div>
+						    	<span><label><font color="Black">E-MAIL</font></label></span>
+						    	<span><input name="email" type="text" class="textbox" placeholder="Enter Your Email ID"></span>
+						    </div>
+						    <br>
+						    <div>
+						     	<span><label><font color="Black">MOBILE</font></label></span>
+						    	<span><input name="phno" type="text" class="textbox" placeholder="Enter your Mobile No."></span>
+						    </div>
+						   
+					    </div>
+					    <div class = "col-lg-6">
+					        <div>					    	
+						    	<span><label>SUBJECT</label></span>
+						    	<span><textarea name="comment"> </textarea></span>
+						    </div>
+						   <div>
+						  </div>
+					    </div>
+
+
+
+<input type = "submit" value = "Submit" name = "submit">
+
+					  <!--  <input type="submit" value="Submit" name = "submit"> -->
+
+
+					</form>
+					    <div class="clearfix"></div>
+				  </div>
+				  </div>
+			</div>
+
+	<!--//contact-->
+
+
+	<!--footer-->
+	<footer class = "footer copy">
+		<p>Design by Yogendra Saxena | 9840946552</p>
+    	
+        <a href="https://www.facebook.com/yogendra.saxena.50"><i class="fa fa-facebook"></i></a>
+        <a href="https://twitter.com/yogendra_saxena"><i class="fa fa-twitter"></i></a>
+        <a href="https://www.linkedin.com/in/yogendra-saxena-a95b53b5?trk=hp-identity-name"><i class = "fa fa-linkedin"></i></a>
+          <a href="https://github.com/yogain123"><i class="fa fa-github"></i></a>
+         <a href="https://bitbucket.org/yogain123"><i class="fa fa-bitbucket"></i></a>
+
+           
+             <a href="https://plus.google.com/103470268657307601040/posts"><i class="fa fa-google-plus"></i></a>
+    	<!--End container-->
+</footer><!--End footer 2-->
+			
+	</footer>
+
+							<!--start-smoth-scrolling-->
+						
+
+</body>
+</html>					
