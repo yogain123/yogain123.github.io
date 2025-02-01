@@ -27,7 +27,7 @@ function App() {
           <Toolbar>
             <Typography
               onClick={() => {
-                window.location.href = "/tax-calculator";
+                window.location.href = "/";
               }}
               variant="h6"
               component="div"
@@ -35,40 +35,19 @@ function App() {
             >
               Salary Calculator
             </Typography>
-            <Button
-              color="inherit"
-              component={Link}
-              to="/tax-calculator/new-regime"
-            >
+            <Button color="inherit" component={Link} to="/new-regime">
               New Regime
             </Button>
-            <Button
-              color="inherit"
-              component={Link}
-              to="/tax-calculator/old-regime"
-            >
+            <Button color="inherit" component={Link} to="/old-regime">
               Old Regime
             </Button>
           </Toolbar>
         </AppBar>
 
         <Routes>
-          <Route
-            path="/"
-            element={<Navigate to="/tax-calculator/new-regime" replace />}
-          />
-          <Route
-            path="/tax-calculator"
-            element={<Navigate to="/tax-calculator/new-regime" replace />}
-          />
-          <Route
-            path="/tax-calculator/new-regime"
-            element={<NewRegimeCalculator />}
-          />
-          <Route
-            path="/tax-calculator/old-regime"
-            element={<OldRegimeCalculator />}
-          />
+          <Route path="/" element={<Navigate to="/new-regime" replace />} />
+          <Route path="/new-regime" element={<NewRegimeCalculator />} />
+          <Route path="/old-regime" element={<OldRegimeCalculator />} />
         </Routes>
 
         <Box
