@@ -27,7 +27,7 @@ function App() {
           <Toolbar>
             <Typography
               onClick={() => {
-                window.location.href = "/tax-calculator/new-regime";
+                window.location.href = "/tax-calculator";
               }}
               variant="h6"
               component="div"
