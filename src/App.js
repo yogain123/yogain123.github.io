@@ -56,7 +56,16 @@ function App() {
         >
           <Container>
             <Typography variant="body2" align="center" sx={{ mt: 1 }}>
-              Made by Yogendra for all Indian ❤️
+              Made by{" "}
+              <a
+                href="https://www.github.com/yogain123"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ color: "white", textDecoration: "none" }}
+              >
+                Yogendra
+              </a>{" "}
+              for all Indian ❤️
             </Typography>
           </Container>
         </Box>
