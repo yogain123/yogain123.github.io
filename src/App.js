@@ -1,5 +1,11 @@
 import React from "react";
-import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Link,
+  Navigate,
+} from "react-router-dom";
 import {
   AppBar,
   Toolbar,
@@ -19,21 +25,50 @@ function App() {
       >
         <AppBar position="static">
           <Toolbar>
-            <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+            <Typography
+              onClick={() => {
+                window.location.href = "/tax-calculator/new-regime";
+              }}
+              variant="h6"
+              component="div"
+              sx={{ flexGrow: 1, cursor: "pointer" }}
+            >
               Salary Calculator
             </Typography>
-            <Button color="inherit" component={Link} to="/">
+            <Button
+              color="inherit"
+              component={Link}
+              to="/tax-calculator/new-regime"
+            >
               New Regime
             </Button>
-            <Button color="inherit" component={Link} to="/old-regime">
+            <Button
+              color="inherit"
+              component={Link}
+              to="/tax-calculator/old-regime"
+            >
               Old Regime
             </Button>
           </Toolbar>
         </AppBar>
 
         <Routes>
-          <Route path="/" element={<NewRegimeCalculator />} />
-          <Route path="/old-regime" element={<OldRegimeCalculator />} />
+          <Route
+            path="/"
+            element={<Navigate to="/tax-calculator/new-regime" replace />}
+          />
+          <Route
+            path="/tax-calculator"
+            element={<Navigate to="/tax-calculator/new-regime" replace />}
+          />
+          <Route
+            path="/tax-calculator/new-regime"
+            element={<NewRegimeCalculator />}
+          />
+          <Route
+            path="/tax-calculator/old-regime"
+            element={<OldRegimeCalculator />}
+          />
         </Routes>
 
         <Box
