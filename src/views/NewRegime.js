@@ -77,10 +77,15 @@ function NewRegimeCalculator() {
 
     const { tax, rebate } = calculateTax(taxableIncome);
 
+    const cess = tax * 0.04;
+    const professionalTax = 200;
+
     if (isPfPartOfSalary) {
-      inHandYear = annualSalary - tax - totalPfContribution;
+      inHandYear =
+        annualSalary - tax - totalPfContribution - cess - professionalTax;
     } else {
-      inHandYear = annualSalary - tax - parseFloat(employeePf);
+      inHandYear =
+        annualSalary - tax - parseFloat(employeePf) - cess - professionalTax;
     }
     const inHandMonth = inHandYear / 12;
 
@@ -142,24 +147,7 @@ function NewRegimeCalculator() {
           <Grid item xs={12} sm={6}>
             <TextField
               fullWidth
-              label="Employer PF Contribution (INR)"
-              variant="outlined"
-              type="text"
-              value={formatNumber(employerPf)}
-              onChange={(e) => {
-                const rawValue = _.replace(e.target.value, /[^0-9]/g, "");
-                if (rawValue === "" || /^\d+$/.test(rawValue)) {
-                  setEmployerPf(rawValue);
-                  setLastChangedPf("employer");
-                }
-              }}
-            />
-          </Grid>
-
-          <Grid item xs={12} sm={6}>
-            <TextField
-              fullWidth
-              label="Employee PF Contribution (INR)"
+              label="Employee PF Contribution Annually (INR)"
               variant="outlined"
               type="text"
               value={formatNumber(employeePf)}
@@ -168,6 +156,23 @@ function NewRegimeCalculator() {
                 if (rawValue === "" || /^\d+$/.test(rawValue)) {
                   setEmployeePf(rawValue);
                   setLastChangedPf("employee");
+                }
+              }}
+            />
+          </Grid>
+
+          <Grid item xs={12} sm={6}>
+            <TextField
+              fullWidth
+              label="Employer PF Contribution Annually (INR)"
+              variant="outlined"
+              type="text"
+              value={formatNumber(employerPf)}
+              onChange={(e) => {
+                const rawValue = _.replace(e.target.value, /[^0-9]/g, "");
+                if (rawValue === "" || /^\d+$/.test(rawValue)) {
+                  setEmployerPf(rawValue);
+                  setLastChangedPf("employer");
                 }
               }}
             />

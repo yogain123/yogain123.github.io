@@ -90,12 +90,17 @@ function OldRegimeCalculator() {
     taxableIncome = taxableIncome - totalDeductions;
     const tax = calculateOldTax(taxableIncome);
 
+    const cess = tax * 0.04;
+    const professionalTax = 200;
+
     // Calculate in-hand salary
     let inHandYear;
     if (isPfPartOfSalary) {
-      inHandYear = annualSalary - tax - totalPfContribution;
+      inHandYear =
+        annualSalary - tax - totalPfContribution - cess - professionalTax;
     } else {
-      inHandYear = annualSalary - tax - parseFloat(employeePf);
+      inHandYear =
+        annualSalary - tax - parseFloat(employeePf) - cess - professionalTax;
     }
 
     setResults({
@@ -197,6 +202,16 @@ function OldRegimeCalculator() {
             />
           </Grid>
 
+          <Grid item xs={12} sm={6}>
+            <TextField
+              fullWidth
+              label="Section 80C (Other than PF)"
+              variant="outlined"
+              value={formatNumber(section80C)}
+              onChange={(e) => setSection80C(e.target.value.replace(/\D/g, ""))}
+            />
+          </Grid>
+
           <Grid item xs={12}>
             <TextField
               fullWidth
@@ -212,23 +227,13 @@ function OldRegimeCalculator() {
           <Grid item xs={12} sm={6}>
             <TextField
               fullWidth
-              label="Section 80C (Other than PF)"
+              label="Employee PF Contribution Annually (INR)"
               variant="outlined"
-              value={formatNumber(section80C)}
-              onChange={(e) => setSection80C(e.target.value.replace(/\D/g, ""))}
-            />
-          </Grid>
-
-          <Grid item xs={12} sm={6}>
-            <TextField
-              fullWidth
-              label="Employer PF Contribution (INR)"
-              variant="outlined"
-              value={formatNumber(employerPf)}
+              value={formatNumber(employeePf)}
               onChange={(e) => {
                 const rawValue = e.target.value.replace(/\D/g, "");
-                setEmployerPf(rawValue);
-                setLastChangedPf("employer");
+                setEmployeePf(rawValue);
+                setLastChangedPf("employee");
               }}
             />
           </Grid>
@@ -236,13 +241,13 @@ function OldRegimeCalculator() {
           <Grid item xs={12} sm={6}>
             <TextField
               fullWidth
-              label="Employee PF Contribution (INR)"
+              label="Employer PF Contribution Annually (INR)"
               variant="outlined"
-              value={formatNumber(employeePf)}
+              value={formatNumber(employerPf)}
               onChange={(e) => {
                 const rawValue = e.target.value.replace(/\D/g, "");
-                setEmployeePf(rawValue);
-                setLastChangedPf("employee");
+                setEmployerPf(rawValue);
+                setLastChangedPf("employer");
               }}
             />
           </Grid>
