@@ -19,7 +19,7 @@ import OldRegimeCalculator from "./views/OldRegime";
 
 function App() {
   return (
-    <Router>
+    <Router basename="/yogain123.github.com">
       <div
         style={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}
       >
