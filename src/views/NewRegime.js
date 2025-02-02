@@ -75,7 +75,13 @@ function NewRegimeCalculator() {
       taxableIncome = taxableIncome - parseFloat(employerPf);
     }
 
-    const { tax, rebate } = calculateTax(taxableIncome);
+    let { tax, rebate } = calculateTax(taxableIncome);
+    let marginalTaxRelief = "No";
+
+    if (tax >= 60000 && taxableIncome <= 1260000) {
+      tax = taxableIncome - 1200000;
+      marginalTaxRelief = "Yes";
+    }
 
     const cess = tax * 0.04;
     const professionalTax = 200;
@@ -97,6 +103,7 @@ function NewRegimeCalculator() {
       inHandYear,
       inHandMonth,
       standardDeduction,
+      marginalTaxRelief,
       totalPF: isPfPartOfSalary ? totalPfContribution : parseFloat(employeePf),
     });
   };
@@ -255,9 +262,14 @@ function NewRegimeCalculator() {
 
                   <Grid container spacing={1} sx={{ mt: 1 }}>
                     <ResultItem
-                      label="Rebate Applied"
+                      label="Rebate"
                       value={results.rebate}
                       sx={{ bgcolor: "success.light", borderRadius: 1, p: 1 }}
+                    />
+                    <ResultItem
+                      label="Marginal Tax Relief"
+                      value={results.marginalTaxRelief}
+                      sx={{ bgcolor: "error.light", borderRadius: 1, p: 1 }}
                     />
                     <ResultItem
                       label="Total Tax"
