@@ -88,19 +88,19 @@ function OldRegimeCalculator() {
       total80C;
 
     taxableIncome = taxableIncome - totalDeductions;
-    const tax = calculateOldTax(taxableIncome);
+    let tax = calculateOldTax(taxableIncome);
 
     const cess = tax * 0.04;
     const professionalTax = 200;
 
+    tax = tax + cess + professionalTax;
+
     // Calculate in-hand salary
     let inHandYear;
     if (isPfPartOfSalary) {
-      inHandYear =
-        annualSalary - tax - totalPfContribution - cess - professionalTax;
+      inHandYear = annualSalary - tax - totalPfContribution;
     } else {
-      inHandYear =
-        annualSalary - tax - parseFloat(employeePf) - cess - professionalTax;
+      inHandYear = annualSalary - tax - parseFloat(employeePf);
     }
 
     setResults({
