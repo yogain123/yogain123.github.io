@@ -107,6 +107,8 @@ function OldRegimeCalculator() {
       annualSalary,
       taxableIncome,
       tax,
+      cess,
+      professionalTax,
       inHandYear,
       inHandMonth: inHandYear / 12,
       standardDeduction,
@@ -371,6 +373,20 @@ function OldRegimeCalculator() {
                     <ResultItem
                       label="Total Tax"
                       value={results.tax}
+                      sx={{ bgcolor: "error.light", borderRadius: 1, p: 1 }}
+                    />
+                  </Grid>
+                  <Grid container spacing={1}>
+                    <ResultItem
+                      label="Cess"
+                      value={results.cess}
+                      sx={{ bgcolor: "error.light", borderRadius: 1, p: 1 }}
+                    />
+                  </Grid>
+                  <Grid container spacing={1}>
+                    <ResultItem
+                      label="Professional Tax"
+                      value={results.professionalTax}
                       sx={{ bgcolor: "error.light", borderRadius: 1, p: 1 }}
                     />
                   </Grid>
