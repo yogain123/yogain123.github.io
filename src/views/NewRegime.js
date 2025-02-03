@@ -274,16 +274,6 @@ function NewRegimeCalculator() {
                       sx={{ bgcolor: "error.light", borderRadius: 1, p: 1 }}
                     />
                     <ResultItem
-                      label="Cess"
-                      value={results.cess}
-                      sx={{ bgcolor: "error.light", borderRadius: 1, p: 1 }}
-                    />
-                    <ResultItem
-                      label="Professionl Tax"
-                      value={results.professionalTax}
-                      sx={{ bgcolor: "error.light", borderRadius: 1, p: 1 }}
-                    />
-                    <ResultItem
                       label="Total Tax"
                       value={results.tax}
                       sx={{ bgcolor: "error.light", borderRadius: 1, p: 1 }}

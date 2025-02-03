@@ -376,20 +376,6 @@ function OldRegimeCalculator() {
                       sx={{ bgcolor: "error.light", borderRadius: 1, p: 1 }}
                     />
                   </Grid>
-                  <Grid container spacing={1}>
-                    <ResultItem
-                      label="Cess"
-                      value={results.cess}
-                      sx={{ bgcolor: "error.light", borderRadius: 1, p: 1 }}
-                    />
-                  </Grid>
-                  <Grid container spacing={1}>
-                    <ResultItem
-                      label="Professional Tax"
-                      value={results.professionalTax}
-                      sx={{ bgcolor: "error.light", borderRadius: 1, p: 1 }}
-                    />
-                  </Grid>
                 </CardContent>
               </Card>
             </Grid>
