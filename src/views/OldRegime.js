@@ -11,9 +11,11 @@ import {
   CardContent,
   Divider,
   Typography,
+  Chip,
 } from "@mui/material";
 import _ from "lodash";
 import ResultItem from "../components/ResultItem";
+import StarBorder from "@mui/icons-material/StarBorder";
 
 function OldRegimeCalculator() {
   const [salary, setSalary] = useState("");
@@ -28,6 +30,8 @@ function OldRegimeCalculator() {
   const [lastChangedPf, setLastChangedPf] = useState(null);
   const [results, setResults] = useState(null);
   const [section80C, setSection80C] = useState("");
+  const [favorites, setFavorites] = useState([]);
+  const [showFavorites, setShowFavorites] = useState(false);
 
   useEffect(() => {
     if (lastChangedPf === "employer") {
@@ -36,6 +40,17 @@ function OldRegimeCalculator() {
       setEmployerPf(employeePf);
     }
   }, [employerPf, employeePf, lastChangedPf]);
+
+  useEffect(() => {
+    const savedFavorites = localStorage.getItem("oldRegimeFavorites");
+    if (savedFavorites) {
+      setFavorites(JSON.parse(savedFavorites));
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem("oldRegimeFavorites", JSON.stringify(favorites));
+  }, [favorites]);
 
   const calculateOldTax = (taxableIncome) => {
     const oldSlabs = [
@@ -129,6 +144,47 @@ function OldRegimeCalculator() {
     if (_.isEmpty(value)) return "";
     const number = _.toInteger(value.replace(/,/g, ""));
     return _.isNaN(number) ? "" : number.toLocaleString("en-IN");
+  };
+
+  const saveAsFavorite = () => {
+    const favoriteName = window.prompt("Enter a name for this favorite:");
+    if (!favoriteName) return; // User cancelled the prompt
+
+    const newFavorite = {
+      id: Date.now(),
+      name: favoriteName || `Unnamed Favorite ${favorites.length + 1}`,
+      values: {
+        salary,
+        hra,
+        section80D,
+        section24,
+        section80EE,
+        otherDeductions,
+        employerPf,
+        employeePf,
+        isPfPartOfSalary,
+        section80C,
+      },
+    };
+    setFavorites([...favorites, newFavorite]);
+  };
+
+  const loadFavorite = (fav) => {
+    const values = fav.values;
+    setSalary(values.salary);
+    setHra(values.hra);
+    setSection80D(values.section80D);
+    setSection24(values.section24);
+    setSection80EE(values.section80EE);
+    setOtherDeductions(values.otherDeductions);
+    setEmployerPf(values.employerPf);
+    setEmployeePf(values.employeePf);
+    setIsPfPartOfSalary(values.isPfPartOfSalary);
+    setSection80C(values.section80C);
+  };
+
+  const deleteFavorite = (id) => {
+    setFavorites(favorites.filter((fav) => fav.id !== id));
   };
 
   return (
@@ -272,7 +328,7 @@ function OldRegimeCalculator() {
             </Typography>
           </Grid>
 
-          <Grid item xs={12}>
+          <Grid item xs={12} sx={{ display: "flex", gap: 2 }}>
             <Button
               variant="contained"
               color="primary"
@@ -281,7 +337,37 @@ function OldRegimeCalculator() {
             >
               Calculate
             </Button>
+            <Button
+              variant="outlined"
+              color="secondary"
+              onClick={saveAsFavorite}
+              disabled={!salary}
+              startIcon={<StarBorder />}
+            >
+              Save Favorite
+            </Button>
           </Grid>
+
+          {favorites.length > 0 && (
+            <Grid item xs={12}>
+              <Typography variant="h6" gutterBottom>
+                Saved Favorites
+              </Typography>
+              <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
+                {favorites.map((fav) => (
+                  <Chip
+                    key={fav.id}
+                    label={fav.name}
+                    onClick={() => loadFavorite(fav)}
+                    onDelete={() => deleteFavorite(fav.id)}
+                    color="primary"
+                    variant="outlined"
+                    sx={{ cursor: "pointer" }}
+                  />
+                ))}
+              </Box>
+            </Grid>
+          )}
         </Grid>
       </form>
 
