@@ -11,9 +11,11 @@ import {
   CardContent,
   Divider,
   Typography,
+  Chip,
 } from "@mui/material";
 import _ from "lodash";
 import ResultItem from "../components/ResultItem";
+import StarBorder from "@mui/icons-material/StarBorder";
 
 function NewRegimeCalculator() {
   const [salary, setSalary] = useState("");
@@ -22,6 +24,8 @@ function NewRegimeCalculator() {
   const [isPfPartOfSalary, setIsPfPartOfSalary] = useState(false);
   const [lastChangedPf, setLastChangedPf] = useState(null);
   const [results, setResults] = useState(null);
+  const [favorites, setFavorites] = useState([]);
+  const [showFavorites, setShowFavorites] = useState(false);
 
   useEffect(() => {
     if (lastChangedPf === "employer") {
@@ -30,6 +34,17 @@ function NewRegimeCalculator() {
       setEmployerPf(employeePf);
     }
   }, [employerPf, employeePf, lastChangedPf]);
+
+  useEffect(() => {
+    const savedFavorites = localStorage.getItem("newRegimeFavorites");
+    if (savedFavorites) {
+      setFavorites(JSON.parse(savedFavorites));
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem("newRegimeFavorites", JSON.stringify(favorites));
+  }, [favorites]);
 
   const calculateTax = (taxableIncome) => {
     const slabs = [
@@ -114,6 +129,35 @@ function NewRegimeCalculator() {
     if (_.isEmpty(value)) return "";
     const number = _.toInteger(value.replace(/,/g, ""));
     return _.isNaN(number) ? "" : number.toLocaleString("en-IN");
+  };
+
+  const saveAsFavorite = () => {
+    const favoriteName = window.prompt("Enter a name for this favorite:");
+    if (!favoriteName) return;
+
+    const newFavorite = {
+      id: Date.now(),
+      name: favoriteName || `Unnamed Favorite ${favorites.length + 1}`,
+      values: {
+        salary,
+        employerPf,
+        employeePf,
+        isPfPartOfSalary,
+      },
+    };
+    setFavorites([...favorites, newFavorite]);
+  };
+
+  const loadFavorite = (fav) => {
+    const values = fav.values;
+    setSalary(values.salary);
+    setEmployerPf(values.employerPf);
+    setEmployeePf(values.employeePf);
+    setIsPfPartOfSalary(values.isPfPartOfSalary);
+  };
+
+  const deleteFavorite = (id) => {
+    setFavorites(favorites.filter((fav) => fav.id !== id));
   };
 
   return (
@@ -205,7 +249,7 @@ function NewRegimeCalculator() {
             </Typography>
           </Grid>
 
-          <Grid item xs={12}>
+          <Grid item xs={12} sx={{ display: "flex", gap: 2 }}>
             <Button
               variant="contained"
               color="primary"
@@ -213,6 +257,15 @@ function NewRegimeCalculator() {
               disabled={!salary || !employerPf || !employeePf}
             >
               Calculate
+            </Button>
+            <Button
+              variant="outlined"
+              color="secondary"
+              onClick={saveAsFavorite}
+              disabled={!salary}
+              startIcon={<StarBorder />}
+            >
+              Save Favorite
             </Button>
           </Grid>
         </Grid>
@@ -306,6 +359,27 @@ function NewRegimeCalculator() {
             </Grid>
           </Grid>
         </Box>
+      )}
+
+      {favorites.length > 0 && (
+        <Grid item xs={12}>
+          <Typography variant="h6" gutterBottom>
+            Saved Favorites
+          </Typography>
+          <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
+            {favorites.map((fav) => (
+              <Chip
+                key={fav.id}
+                label={fav.name}
+                onClick={() => loadFavorite(fav)}
+                onDelete={() => deleteFavorite(fav.id)}
+                color="primary"
+                variant="outlined"
+                sx={{ cursor: "pointer" }}
+              />
+            ))}
+          </Box>
+        </Grid>
       )}
     </Container>
   );
