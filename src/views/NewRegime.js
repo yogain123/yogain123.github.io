@@ -157,7 +157,9 @@ function NewRegimeCalculator() {
   };
 
   const deleteFavorite = (id) => {
-    setFavorites(favorites.filter((fav) => fav.id !== id));
+    if (window.confirm("Are you sure you want to delete this favorite?")) {
+      setFavorites(favorites.filter((fav) => fav.id !== id));
+    }
   };
 
   return (
