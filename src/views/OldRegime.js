@@ -16,6 +16,7 @@ import {
 import _ from "lodash";
 import ResultItem from "../components/ResultItem";
 import StarBorder from "@mui/icons-material/StarBorder";
+import AccountBalance from "@mui/icons-material/AccountBalance";
 
 function OldRegimeCalculator() {
   const [salary, setSalary] = useState("");
@@ -31,7 +32,6 @@ function OldRegimeCalculator() {
   const [results, setResults] = useState(null);
   const [section80C, setSection80C] = useState("");
   const [favorites, setFavorites] = useState([]);
-  const [showFavorites, setShowFavorites] = useState(false);
 
   useEffect(() => {
     if (lastChangedPf === "employer") {
@@ -204,9 +204,20 @@ function OldRegimeCalculator() {
           textTransform: "uppercase",
           letterSpacing: 1.2,
           mb: 3,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: 2,
         }}
       >
-        🏛️ Old Tax Regime Calculator
+        <AccountBalance
+          sx={{
+            fontSize: "2.5rem",
+            color: "primary.dark",
+            filter: "drop-shadow(0 2px 2px rgba(0,0,0,0.1))",
+          }}
+        />
+        Old Tax Regime Calculator
       </Typography>
       <form onSubmit={handleSubmit}>
         <Grid container spacing={3}>
