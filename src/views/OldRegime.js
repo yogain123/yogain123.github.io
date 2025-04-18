@@ -419,7 +419,7 @@ function OldRegimeCalculator() {
                       ["Section 80D", formatNumber(results.section80D)],
                       ["Section 24", formatNumber(results.section24)],
                       ["Section 80EE", formatNumber(results.section80EE)],
-                      ["Standard Deductions", formatNumber(50000)],
+                      ["Standard Deductions", formatNumber("50000")],
                       [
                         "Other Deductions",
                         formatNumber(results.otherDeductions),
