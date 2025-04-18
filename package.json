@@ -18,7 +18,7 @@
     "start": "react-scripts start",
     "dev": "react-scripts start",
     "lite-bomb": "npm run build && git add . && git commit -m 'fix'",
-    "bomb": "npm run lite-bomb && git push",
+    "push": "npm run lite-bomb && git push",
     "build": "BUILD_PATH=docs react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
