@@ -331,7 +331,7 @@ function OldRegimeCalculator() {
                   onChange={(e) => setIsPfPartOfSalary(e.target.checked)}
                 />
               }
-              label="Is Employer PF part of the salary mentioned above?"
+              label="Is Employ(er) PF part of the salary mentioned above?"
             />
           </Grid>
 
