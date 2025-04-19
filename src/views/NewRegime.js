@@ -179,7 +179,7 @@ function NewRegimeCalculator() {
           mb: 3,
         }}
       >
-        🚀 New Tax Regime Calculator
+        🚀 New Tax Regime Calculator (2025-2026)
       </Typography>
       <form onSubmit={handleSubmit}>
         <Grid container spacing={3}>
