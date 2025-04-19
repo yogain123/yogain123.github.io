@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   HashRouter as Router,
   Routes,
@@ -13,7 +13,13 @@ import {
   Container,
   Box,
   Button,
+  IconButton,
+  Menu,
+  MenuItem,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
+import MenuIcon from "@mui/icons-material/Menu";
 import NewRegimeCalculator from "./views/NewRegime";
 import OldRegimeCalculator from "./views/OldRegime";
 import GratuityCalculator from "./views/GratuityCalculator";
@@ -21,6 +27,19 @@ import LeaveEncashmentCalculator from "./views/LeaveEncashmentCalculator";
 import HRACalculator from "./views/HRACalculator";
 
 function App() {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("lg"));
+  const [anchorEl, setAnchorEl] = useState(null);
+  const open = Boolean(anchorEl);
+
+  const handleMenuOpen = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
+
   // Style for active links
   const navLinkStyle = ({ isActive }) => ({
     fontWeight: isActive ? "bold" : "normal",
@@ -28,7 +47,17 @@ function App() {
     backgroundColor: isActive ? "rgba(255, 255, 255, 0.15)" : "transparent",
     borderRadius: "4px",
     padding: "6px 8px",
+    display: "block",
+    width: "100%",
   });
+
+  const navItems = [
+    { path: "/new-regime", label: "New Regime" },
+    { path: "/old-regime", label: "Old Regime" },
+    { path: "/gratuity", label: "Gratuity" },
+    { path: "/leave-encashment", label: "Leave" },
+    { path: "/hra", label: "Optimal Rent" },
+  ];
 
   return (
     <Router>
@@ -47,81 +76,76 @@ function App() {
             >
               Salary Calculator
             </Typography>
-            <NavLink to="/new-regime" style={navLinkStyle}>
-              {({ isActive }) => (
-                <Button
-                  style={{ color: "white" }}
-                  sx={{
-                    fontWeight: isActive ? "bold" : "normal",
-                    backgroundColor: isActive
-                      ? "rgba(255, 255, 255, 0.15)"
-                      : "trarwdnsparent",
-                  }}
-                >
-                  New Regime
-                </Button>
+
+            <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+              {isMobile ? (
+                <>
+                  <IconButton
+                    color="inherit"
+                    aria-label="menu"
+                    onClick={handleMenuOpen}
+                    edge="end"
+                  >
+                    <MenuIcon />
+                  </IconButton>
+                  <Menu
+                    anchorEl={anchorEl}
+                    open={open}
+                    onClose={handleMenuClose}
+                    MenuListProps={{
+                      "aria-labelledby": "mobile-menu-button",
+                    }}
+                  >
+                    {navItems.map((item) => (
+                      <MenuItem key={item.path} onClick={handleMenuClose}>
+                        <NavLink
+                          to={item.path}
+                          style={{
+                            textDecoration: "none",
+                            color: "inherit",
+                            width: "100%",
+                            display: "block",
+                          }}
+                        >
+                          {item.label}
+                        </NavLink>
+                      </MenuItem>
+                    ))}
+                  </Menu>
+                </>
+              ) : (
+                <>
+                  {navItems.map((item) => (
+                    <NavLink
+                      key={item.path}
+                      to={item.path}
+                      style={navLinkStyle}
+                    >
+                      {({ isActive }) => (
+                        <Button
+                          style={{ color: "white" }}
+                          sx={{
+                            fontWeight: isActive ? "bold" : "normal",
+                            backgroundColor: isActive
+                              ? "rgba(255, 255, 255, 0.15)"
+                              : "transparent",
+                            fontSize: {
+                              xs: "0.7rem",
+                              sm: "0.8rem",
+                              md: "0.875rem",
+                            },
+                            whiteSpace: "nowrap",
+                            px: { xs: 1, sm: 1.5, md: 2 },
+                          }}
+                        >
+                          {item.label}
+                        </Button>
+                      )}
+                    </NavLink>
+                  ))}
+                </>
               )}
-            </NavLink>
-            <NavLink to="/old-regime" style={navLinkStyle}>
-              {({ isActive }) => (
-                <Button
-                  style={{ color: "white" }}
-                  sx={{
-                    fontWeight: isActive ? "bold" : "normal",
-                    backgroundColor: isActive
-                      ? "rgba(255, 255, 255, 0.15)"
-                      : "transparent",
-                  }}
-                >
-                  Old Regime
-                </Button>
-              )}
-            </NavLink>
-            <NavLink to="/gratuity" style={navLinkStyle}>
-              {({ isActive }) => (
-                <Button
-                  style={{ color: "white" }}
-                  sx={{
-                    fontWeight: isActive ? "bold" : "normal",
-                    backgroundColor: isActive
-                      ? "rgba(255, 255, 255, 0.15)"
-                      : "transparent",
-                  }}
-                >
-                  Gratuity Calculator
-                </Button>
-              )}
-            </NavLink>
-            <NavLink to="/leave-encashment" style={navLinkStyle}>
-              {({ isActive }) => (
-                <Button
-                  style={{ color: "white" }}
-                  sx={{
-                    fontWeight: isActive ? "bold" : "normal",
-                    backgroundColor: isActive
-                      ? "rgba(255, 255, 255, 0.15)"
-                      : "transparent",
-                  }}
-                >
-                  Leave Encashment
-                </Button>
-              )}
-            </NavLink>
-            <NavLink to="/hra" style={navLinkStyle}>
-              {({ isActive }) => (
-                <Button
-                  style={{ color: "white" }}
-                  sx={{
-                    fontWeight: isActive ? "bold" : "normal",
-                    backgroundColor: isActive
-                      ? "rgba(255, 255, 255, 0.15)"
-                      : "transparent",
-                  }}
-                >
-                  Optimal Rent
-                </Button>
-              )}
-            </NavLink>
+            </Box>
           </Toolbar>
         </AppBar>
 
