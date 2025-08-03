@@ -25,6 +25,7 @@ import OldRegimeCalculator from "./views/OldRegime";
 import GratuityCalculator from "./views/GratuityCalculator";
 import LeaveEncashmentCalculator from "./views/LeaveEncashmentCalculator";
 import HRACalculator from "./views/HRACalculator";
+import CreditCardCalculator from "./views/CreditCardCalculator";
 
 function App() {
   const theme = useTheme();
@@ -57,6 +58,7 @@ function App() {
     { path: "/gratuity", label: "Gratuity" },
     { path: "/leave-encashment", label: "Leave" },
     { path: "/hra", label: "Optimal Rent" },
+    { path: "/credit-card", label: "Credit Card" },
   ];
 
   return (
@@ -159,6 +161,7 @@ function App() {
             element={<LeaveEncashmentCalculator />}
           />
           <Route path="/hra" element={<HRACalculator />} />
+          <Route path="/credit-card" element={<CreditCardCalculator />} />
         </Routes>
 
         <Box
