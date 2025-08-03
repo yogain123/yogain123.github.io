@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Container,
   TextField,
@@ -18,8 +18,10 @@ import {
   TableRow,
   Paper,
   Divider,
+  Chip,
 } from "@mui/material";
 import CreditCard from "@mui/icons-material/CreditCard";
+import StarBorder from "@mui/icons-material/StarBorder";
 import ResultItem from "../components/ResultItem";
 
 function CreditCardCalculator() {
@@ -42,6 +44,22 @@ function CreditCardCalculator() {
   const [basicResult, setBasicResult] = useState(null);
   const [airmilesResult, setAirmilesResult] = useState(null);
   const [showSummary, setShowSummary] = useState(false);
+
+  // Favorites functionality
+  const [favorites, setFavorites] = useState([]);
+
+  // Load favorites from localStorage on component mount
+  useEffect(() => {
+    const savedFavorites = localStorage.getItem("creditCardFavorites");
+    if (savedFavorites) {
+      setFavorites(JSON.parse(savedFavorites));
+    }
+  }, []);
+
+  // Save favorites to localStorage whenever favorites change
+  useEffect(() => {
+    localStorage.setItem("creditCardFavorites", JSON.stringify(favorites));
+  }, [favorites]);
 
   const formatNumber = (value) => {
     if (!value) return "";
@@ -131,6 +149,59 @@ function CreditCardCalculator() {
             }
           : null,
     };
+  };
+
+  const saveAsFavorite = () => {
+    const favoriteName = window.prompt("Enter a name for this credit card:");
+    if (!favoriteName) return;
+
+    const newFavorite = {
+      id: Date.now(),
+      name: favoriteName || `Unnamed Card ${favorites.length + 1}`,
+      values: {
+        // Input values
+        cardName,
+        spendAmount,
+        pointsEarned,
+        pointValue,
+        hasAirmiles,
+        pointsToAirmiles,
+        airmilesValue,
+        exampleSpend,
+        exampleSpendAirmiles,
+        // Results and UI state
+        basicResult,
+        airmilesResult,
+        showSummary,
+      },
+    };
+    setFavorites([...favorites, newFavorite]);
+  };
+
+  const loadFavorite = (fav) => {
+    const values = fav.values;
+
+    // Load input values
+    setCardName(values.cardName || "");
+    setSpendAmount(values.spendAmount || "");
+    setPointsEarned(values.pointsEarned || "");
+    setPointValue(values.pointValue || "");
+    setHasAirmiles(values.hasAirmiles || false);
+    setPointsToAirmiles(values.pointsToAirmiles || "");
+    setAirmilesValue(values.airmilesValue || "");
+    setExampleSpend(values.exampleSpend || "");
+    setExampleSpendAirmiles(values.exampleSpendAirmiles || "");
+
+    // Load results and UI state
+    setBasicResult(values.basicResult || null);
+    setAirmilesResult(values.airmilesResult || null);
+    setShowSummary(values.showSummary || false);
+  };
+
+  const deleteFavorite = (id) => {
+    if (window.confirm("Are you sure you want to delete this favorite?")) {
+      setFavorites(favorites.filter((fav) => fav.id !== id));
+    }
   };
 
   return (
@@ -237,6 +308,27 @@ function CreditCardCalculator() {
                   Calculate Rewards Percentage
                 </Button>
               </Grid>
+
+              {favorites.length > 0 && (
+                <Grid item xs={12}>
+                  <Typography variant="h6" gutterBottom>
+                    Saved Favorites
+                  </Typography>
+                  <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
+                    {favorites.map((fav) => (
+                      <Chip
+                        key={fav.id}
+                        label={fav.name}
+                        onClick={() => loadFavorite(fav)}
+                        onDelete={() => deleteFavorite(fav.id)}
+                        color="primary"
+                        variant="outlined"
+                        sx={{ cursor: "pointer" }}
+                      />
+                    ))}
+                  </Box>
+                </Grid>
+              )}
             </Grid>
           </form>
         </CardContent>
@@ -307,7 +399,16 @@ function CreditCardCalculator() {
             control={
               <Checkbox
                 checked={hasAirmiles}
-                onChange={(e) => setHasAirmiles(e.target.checked)}
+                onChange={(e) => {
+                  setHasAirmiles(e.target.checked);
+                  if (!e.target.checked) {
+                    // Clear airmiles data when unchecked
+                    setAirmilesResult(null);
+                    setPointsToAirmiles("");
+                    setAirmilesValue("");
+                    setExampleSpendAirmiles("");
+                  }
+                }}
               />
             }
             label="Does your card support airmiles transfer?"
@@ -361,7 +462,7 @@ function CreditCardCalculator() {
       </Card>
 
       {/* Airmiles Results */}
-      {airmilesResult && (
+      {hasAirmiles && airmilesResult && (
         <Card variant="outlined" sx={{ mb: 3 }}>
           <CardContent>
             <Typography variant="h6" gutterBottom color="secondary">
@@ -379,7 +480,7 @@ function CreditCardCalculator() {
       )}
 
       {/* Airmiles Example Calculation */}
-      {airmilesResult && (
+      {hasAirmiles && airmilesResult && (
         <Card variant="outlined" sx={{ mb: 3 }}>
           <CardContent>
             <Typography variant="h6" gutterBottom color="secondary">
@@ -420,9 +521,17 @@ function CreditCardCalculator() {
         </Card>
       )}
 
-      {/* Summary Button */}
+      {/* Summary and Save Buttons */}
       {basicResult && (
-        <Box sx={{ textAlign: "center", mb: 3 }}>
+        <Box
+          sx={{
+            textAlign: "center",
+            mb: 3,
+            display: "flex",
+            gap: 2,
+            justifyContent: "center",
+          }}
+        >
           <Button
             variant="contained"
             color="success"
@@ -430,6 +539,15 @@ function CreditCardCalculator() {
             onClick={() => setShowSummary(true)}
           >
             Get Summary
+          </Button>
+          <Button
+            variant="outlined"
+            color="secondary"
+            size="large"
+            onClick={saveAsFavorite}
+            startIcon={<StarBorder />}
+          >
+            Save Favorite
           </Button>
         </Box>
       )}
