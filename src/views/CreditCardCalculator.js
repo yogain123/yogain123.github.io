@@ -10,33 +10,36 @@ import {
   Box,
   FormControlLabel,
   Checkbox,
+  Paper,
+  Divider,
+  Alert,
+  AlertTitle,
+  Chip,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
   TableRow,
-  Paper,
-  Divider,
-  Chip,
   Tabs,
   Tab,
   IconButton,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
   FormGroup,
 } from "@mui/material";
 import CreditCard from "@mui/icons-material/CreditCard";
+import Calculate from "@mui/icons-material/Calculate";
+import TrendingUp from "@mui/icons-material/TrendingUp";
 import StarBorder from "@mui/icons-material/StarBorder";
+import Compare from "@mui/icons-material/Compare";
 import Add from "@mui/icons-material/Add";
 import Close from "@mui/icons-material/Close";
-import Compare from "@mui/icons-material/Compare";
-import ResultItem from "../components/ResultItem";
 
 function CreditCardCalculator() {
-  // Tabs and multiple cards state
+  // Multiple cards state
   const [activeTab, setActiveTab] = useState(0);
   const [cards, setCards] = useState([
     {
@@ -46,14 +49,12 @@ function CreditCardCalculator() {
       spendAmount: "",
       pointsEarned: "",
       pointValue: "",
-      exampleSpend: "",
+      exampleSpend: "100000",
       hasAirmiles: false,
       pointsToAirmiles: "",
       airmilesValue: "",
-      exampleSpendAirmiles: "",
       basicResult: null,
       airmilesResult: null,
-      showSummary: false,
     },
   ]);
 
@@ -80,6 +81,13 @@ function CreditCardCalculator() {
     localStorage.setItem("creditCardFavorites", JSON.stringify(favorites));
   }, [favorites]);
 
+  // Utility functions
+  const formatNumber = (value) => {
+    if (!value) return "";
+    const number = parseFloat(value.replace(/,/g, ""));
+    return isNaN(number) ? "" : number.toLocaleString("en-IN");
+  };
+
   // Get current active card
   const getCurrentCard = () => cards[activeTab];
 
@@ -101,14 +109,12 @@ function CreditCardCalculator() {
       spendAmount: "",
       pointsEarned: "",
       pointValue: "",
-      exampleSpend: "",
+      exampleSpend: "100000",
       hasAirmiles: false,
       pointsToAirmiles: "",
       airmilesValue: "",
-      exampleSpendAirmiles: "",
       basicResult: null,
       airmilesResult: null,
-      showSummary: false,
     };
     setCards((prevCards) => [...prevCards, newCard]);
     setActiveTab(cards.length);
@@ -126,18 +132,14 @@ function CreditCardCalculator() {
     }
   };
 
-  const formatNumber = (value) => {
-    if (!value) return "";
-    const number = parseFloat(value.replace(/,/g, ""));
-    return isNaN(number) ? "" : number.toLocaleString("en-IN");
-  };
-
   const calculateBasicRewards = (e) => {
     e.preventDefault();
     const currentCard = getCurrentCard();
     const spend = parseFloat(currentCard.spendAmount);
     const points = parseFloat(currentCard.pointsEarned);
     const value = parseFloat(currentCard.pointValue);
+
+    if (!spend || !points || !value) return;
 
     // Calculate reward percentage
     const rewardPercentage = ((points * value) / spend) * 100;
@@ -148,7 +150,33 @@ function CreditCardCalculator() {
       valuePerPoint: value,
     };
 
-    updateCurrentCard({ basicResult });
+    let airmilesResult = null;
+
+    // Auto-calculate airmiles if enabled and values are provided
+    if (
+      currentCard.hasAirmiles &&
+      currentCard.pointsToAirmiles &&
+      currentCard.airmilesValue
+    ) {
+      const airmilesRatio = parseFloat(currentCard.pointsToAirmiles);
+      const airmilesVal = parseFloat(currentCard.airmilesValue);
+
+      if (airmilesRatio && airmilesVal) {
+        // Calculate airmiles earned from the points
+        const airmilesEarned = points * airmilesRatio;
+        const airmilesRewardValue = airmilesEarned * airmilesVal;
+        const airmilesRewardPercentage = (airmilesRewardValue / spend) * 100;
+
+        airmilesResult = {
+          airmilesEarned,
+          airmilesRewardValue,
+          airmilesRewardPercentage,
+          airmilesPerRupee: airmilesEarned / spend,
+        };
+      }
+    }
+
+    updateCurrentCard({ basicResult, airmilesResult });
   };
 
   const calculateExampleRewards = () => {
@@ -165,37 +193,11 @@ function CreditCardCalculator() {
     };
   };
 
-  const calculateAirmilesRewards = (e) => {
-    e.preventDefault();
-    const currentCard = getCurrentCard();
-    const spend = parseFloat(currentCard.spendAmount);
-    const points = parseFloat(currentCard.pointsEarned);
-    const airmilesRatio = parseFloat(currentCard.pointsToAirmiles);
-    const airmilesVal = parseFloat(currentCard.airmilesValue);
-
-    // Calculate airmiles earned from the points (not from spend directly)
-    const airmilesEarned = points * airmilesRatio;
-    const airmilesRewardValue = airmilesEarned * airmilesVal;
-    const airmilesRewardPercentage = (airmilesRewardValue / spend) * 100;
-
-    const airmilesResult = {
-      airmilesEarned,
-      airmilesRewardValue,
-      airmilesRewardPercentage,
-      airmilesPerRupee: airmilesEarned / spend,
-    };
-
-    updateCurrentCard({ airmilesResult });
-  };
-
   const calculateExampleAirmilesRewards = () => {
     const currentCard = getCurrentCard();
-    if (!currentCard.exampleSpendAirmiles || !currentCard.airmilesResult)
-      return;
+    if (!currentCard.exampleSpend || !currentCard.airmilesResult) return;
 
-    const spend = parseFloat(
-      currentCard.exampleSpendAirmiles.replace(/,/g, "")
-    );
+    const spend = parseFloat(currentCard.exampleSpend.replace(/,/g, ""));
     const airmilesEarned = spend * currentCard.airmilesResult.airmilesPerRupee;
     const rewardAmount = airmilesEarned * parseFloat(currentCard.airmilesValue);
 
@@ -205,27 +207,19 @@ function CreditCardCalculator() {
     };
   };
 
-  const getSummaryData = () => {
-    const currentCard = getCurrentCard();
-    const exampleBasic = calculateExampleRewards();
-    const exampleAirmiles = calculateExampleAirmilesRewards();
-
-    return {
-      cardName: currentCard.cardName,
-      basicRewards: {
-        percentage: currentCard.basicResult?.rewardPercentage || 0,
-        exampleAmount: exampleBasic?.rewardAmount || 0,
-        examplePoints: exampleBasic?.pointsEarned || 0,
-      },
-      airmilesRewards:
-        currentCard.hasAirmiles && currentCard.airmilesResult
-          ? {
-              percentage: currentCard.airmilesResult.airmilesRewardPercentage,
-              exampleAmount: exampleAirmiles?.rewardAmount || 0,
-              exampleAirmiles: exampleAirmiles?.airmilesEarned || 0,
-            }
-          : null,
-    };
+  const resetCurrentCard = () => {
+    updateCurrentCard({
+      cardName: "",
+      spendAmount: "",
+      pointsEarned: "",
+      pointValue: "",
+      exampleSpend: "100000",
+      hasAirmiles: false,
+      pointsToAirmiles: "",
+      airmilesValue: "",
+      basicResult: null,
+      airmilesResult: null,
+    });
   };
 
   const saveAsFavorite = () => {
@@ -235,7 +229,7 @@ function CreditCardCalculator() {
 
     const newFavorite = {
       id: Date.now(),
-      name: favoriteName || `Unnamed Card ${favorites.length + 1}`,
+      name: favoriteName,
       values: { ...currentCard },
     };
     setFavorites([...favorites, newFavorite]);
@@ -295,45 +289,70 @@ function CreditCardCalculator() {
   };
 
   const currentCard = getCurrentCard();
+  const isFormValid =
+    currentCard.cardName &&
+    currentCard.spendAmount &&
+    currentCard.pointsEarned &&
+    currentCard.pointValue;
+  const hasResults = currentCard.basicResult !== null;
 
   return (
-    <Container component="main" sx={{ flex: 1, py: 4 }}>
-      <Typography
-        variant="h4"
-        gutterBottom
-        sx={{
-          mt: 3,
-          pb: 2,
-          color: "primary.main",
-          fontWeight: 700,
-          textAlign: "center",
-          textTransform: "uppercase",
-          letterSpacing: 1.2,
-          mb: 3,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          gap: 2,
-        }}
-      >
-        <CreditCard
+    <Container component="main" sx={{ flex: 1, py: 4, maxWidth: "md" }}>
+      {/* Header */}
+      <Box sx={{ textAlign: "center", mb: 4 }}>
+        <Typography
+          variant="h4"
+          gutterBottom
           sx={{
-            fontSize: "2.5rem",
-            color: "primary.dark",
-            filter: "drop-shadow(0 2px 2px rgba(0,0,0,0.1))",
+            color: "primary.main",
+            fontWeight: 700,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 2,
+            mb: 2,
           }}
-        />
-        Credit Card Rewards Calculator
-      </Typography>
+        >
+          <CreditCard sx={{ fontSize: "2.5rem" }} />
+          Credit Card Rewards Calculator
+        </Typography>
+        <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
+          Enter your card details to calculate reward percentages and see how
+          much you can earn
+        </Typography>
+      </Box>
 
-      <Typography
-        variant="subtitle1"
-        color="text.secondary"
-        sx={{ mb: 3, textAlign: "center" }}
-      >
-        Calculate your credit card rewards percentage and compare different
-        reward structures
-      </Typography>
+      {/* Instructions */}
+      <Alert severity="info" sx={{ mb: 3 }}>
+        <AlertTitle>How to use this calculator</AlertTitle>
+        Fill in your card's reward structure below. For example: If you spend
+        ₹100 and get 2 points, and each point is worth ₹0.25, your reward rate
+        is 0.5%.
+      </Alert>
+
+      {/* Favorites Section */}
+      {favorites.length > 0 && (
+        <Card variant="outlined" sx={{ mb: 3 }}>
+          <CardContent>
+            <Typography variant="h6" gutterBottom color="primary">
+              Quick Load Favorites
+            </Typography>
+            <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
+              {favorites.map((fav) => (
+                <Chip
+                  key={fav.id}
+                  label={fav.name}
+                  onClick={() => loadFavorite(fav)}
+                  onDelete={() => deleteFavorite(fav.id)}
+                  color="primary"
+                  variant="outlined"
+                  sx={{ cursor: "pointer" }}
+                />
+              ))}
+            </Box>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Tabs for multiple cards */}
       <Card variant="outlined" sx={{ mb: 3 }}>
@@ -405,468 +424,330 @@ function CreditCardCalculator() {
         </CardContent>
       </Card>
 
-      {/* Basic Card Information */}
+      {/* Main Input Form */}
       <Card variant="outlined" sx={{ mb: 3 }}>
         <CardContent>
-          <Typography variant="h6" gutterBottom color="primary">
-            Card Information
+          <Typography
+            variant="h6"
+            gutterBottom
+            color="primary"
+            sx={{ display: "flex", alignItems: "center", gap: 1 }}
+          >
+            <CreditCard />
+            Card Details
           </Typography>
-          <form onSubmit={calculateBasicRewards}>
-            <Grid container spacing={3}>
-              <Grid item xs={12} md={6}>
-                <TextField
-                  fullWidth
-                  label="Card Name"
-                  variant="outlined"
-                  value={currentCard.cardName}
-                  onChange={(e) =>
-                    updateCurrentCard({ cardName: e.target.value })
-                  }
-                  required
-                />
-              </Grid>
-              <Grid item xs={12} md={6}>
-                <TextField
-                  fullWidth
-                  label="On Spend of (₹)"
-                  variant="outlined"
-                  value={formatNumber(currentCard.spendAmount)}
-                  onChange={(e) =>
-                    updateCurrentCard({
-                      spendAmount: e.target.value.replace(/\D/g, ""),
-                    })
-                  }
-                  required
-                />
-              </Grid>
-              <Grid item xs={12} md={6}>
-                <TextField
-                  fullWidth
-                  label="You Get Points"
-                  variant="outlined"
-                  type="number"
-                  value={currentCard.pointsEarned}
-                  onChange={(e) =>
-                    updateCurrentCard({ pointsEarned: e.target.value })
-                  }
-                  required
-                />
-              </Grid>
-              <Grid item xs={12} md={6}>
-                <TextField
-                  fullWidth
-                  label="1 Point Equals (₹)"
-                  variant="outlined"
-                  type="number"
-                  step="0.01"
-                  value={currentCard.pointValue}
-                  onChange={(e) =>
-                    updateCurrentCard({ pointValue: e.target.value })
-                  }
-                  required
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <Button
-                  variant="contained"
-                  color="primary"
-                  type="submit"
-                  disabled={
-                    !currentCard.cardName ||
-                    !currentCard.spendAmount ||
-                    !currentCard.pointsEarned ||
-                    !currentCard.pointValue
-                  }
-                >
-                  Calculate Rewards Percentage
-                </Button>
-              </Grid>
 
-              {favorites.length > 0 && (
-                <Grid item xs={12}>
-                  <Typography variant="h6" gutterBottom>
-                    Saved Favorites
-                  </Typography>
-                  <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
-                    {favorites.map((fav) => (
-                      <Chip
-                        key={fav.id}
-                        label={fav.name}
-                        onClick={() => loadFavorite(fav)}
-                        onDelete={() => deleteFavorite(fav.id)}
-                        color="primary"
-                        variant="outlined"
-                        sx={{ cursor: "pointer" }}
-                      />
-                    ))}
-                  </Box>
-                </Grid>
-              )}
-            </Grid>
-          </form>
-        </CardContent>
-      </Card>
-
-      {/* Basic Results */}
-      {currentCard.basicResult && (
-        <Card variant="outlined" sx={{ mb: 3 }}>
-          <CardContent>
-            <Typography variant="h6" gutterBottom color="primary">
-              Rewards Percentage
-            </Typography>
-            <Grid container spacing={2}>
-              <ResultItem
-                label="Reward Percentage"
-                value={`${currentCard.basicResult.rewardPercentage.toFixed(
-                  2
-                )}%`}
-                boldLabel={true}
+          <Grid container spacing={3}>
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                label="Card Name (e.g., HDFC Regalia)"
+                variant="outlined"
+                value={currentCard.cardName}
+                onChange={(e) =>
+                  updateCurrentCard({ cardName: e.target.value })
+                }
+                placeholder="Enter your credit card name"
               />
             </Grid>
-          </CardContent>
-        </Card>
-      )}
 
-      {/* Example Spend Calculation */}
-      {currentCard.basicResult && (
-        <Card variant="outlined" sx={{ mb: 3 }}>
-          <CardContent>
-            <Typography variant="h6" gutterBottom color="primary">
-              Example Calculation
-            </Typography>
-            <Grid container spacing={3}>
-              <Grid item xs={12} md={8}>
-                <TextField
-                  fullWidth
-                  label="Example Spend Amount (₹)"
-                  variant="outlined"
-                  value={formatNumber(currentCard.exampleSpend)}
-                  onChange={(e) =>
-                    updateCurrentCard({
-                      exampleSpend: e.target.value.replace(/\D/g, ""),
-                    })
-                  }
-                />
-              </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                label="Spend Amount (₹)"
+                variant="outlined"
+                value={formatNumber(currentCard.spendAmount)}
+                onChange={(e) =>
+                  updateCurrentCard({
+                    spendAmount: e.target.value.replace(/\D/g, ""),
+                  })
+                }
+                placeholder="e.g., 100"
+                helperText="Amount you need to spend"
+              />
             </Grid>
 
-            {currentCard.exampleSpend && calculateExampleRewards() && (
-              <Box sx={{ mt: 2 }}>
-                <Grid container spacing={2}>
-                  <ResultItem
-                    label="Points Earned"
-                    value={calculateExampleRewards().pointsEarned.toFixed(0)}
-                  />
-                  <ResultItem
-                    label="Reward Amount"
-                    value={calculateExampleRewards().rewardAmount}
-                    boldLabel={true}
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                label="Points Earned"
+                variant="outlined"
+                type="number"
+                value={currentCard.pointsEarned}
+                onChange={(e) =>
+                  updateCurrentCard({ pointsEarned: e.target.value })
+                }
+                placeholder="e.g., 2"
+                helperText="Points earned for the above spend"
+              />
+            </Grid>
+
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                label="Point Value (₹)"
+                variant="outlined"
+                type="number"
+                step="0.01"
+                value={currentCard.pointValue}
+                onChange={(e) =>
+                  updateCurrentCard({ pointValue: e.target.value })
+                }
+                placeholder="e.g., 0.25"
+                helperText="Value of 1 point in rupees"
+              />
+            </Grid>
+
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                label="Example Spend (₹)"
+                variant="outlined"
+                value={formatNumber(currentCard.exampleSpend)}
+                onChange={(e) =>
+                  updateCurrentCard({
+                    exampleSpend: e.target.value.replace(/\D/g, ""),
+                  })
+                }
+                placeholder="100000"
+                helperText="Amount for example calculation"
+              />
+            </Grid>
+          </Grid>
+
+          {/* Airmiles Section */}
+          <Box sx={{ mt: 3, p: 2, bgcolor: "grey.50", borderRadius: 1 }}>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={currentCard.hasAirmiles}
+                  onChange={(e) => {
+                    const hasAirmiles = e.target.checked;
+                    if (!hasAirmiles) {
+                      updateCurrentCard({
+                        hasAirmiles: false,
+                        pointsToAirmiles: "",
+                        airmilesValue: "",
+                      });
+                    } else {
+                      updateCurrentCard({ hasAirmiles: true });
+                    }
+                  }}
+                />
+              }
+              label={
+                <Typography variant="body1" fontWeight="medium">
+                  My card supports airmiles transfer
+                </Typography>
+              }
+            />
+
+            {currentCard.hasAirmiles && (
+              <Grid container spacing={2} sx={{ mt: 1 }}>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    fullWidth
+                    label="Points to Airmiles Ratio"
+                    variant="outlined"
+                    type="number"
+                    step="0.01"
+                    value={currentCard.pointsToAirmiles}
+                    onChange={(e) =>
+                      updateCurrentCard({ pointsToAirmiles: e.target.value })
+                    }
+                    placeholder="e.g., 1"
+                    helperText="How many airmiles per point"
                   />
                 </Grid>
-              </Box>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    fullWidth
+                    label="Airmile Value (₹)"
+                    variant="outlined"
+                    type="number"
+                    step="0.01"
+                    value={currentCard.airmilesValue}
+                    onChange={(e) =>
+                      updateCurrentCard({ airmilesValue: e.target.value })
+                    }
+                    placeholder="e.g., 0.50"
+                    helperText="Value of 1 airmile in rupees"
+                  />
+                </Grid>
+              </Grid>
             )}
-          </CardContent>
-        </Card>
-      )}
+          </Box>
 
-      {/* Airmiles Feature */}
-      <Card variant="outlined" sx={{ mb: 3 }}>
-        <CardContent>
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={currentCard.hasAirmiles}
-                onChange={(e) => {
-                  const hasAirmiles = e.target.checked;
-                  if (!hasAirmiles) {
-                    // Clear airmiles data when unchecked
-                    updateCurrentCard({
-                      hasAirmiles,
-                      airmilesResult: null,
-                      pointsToAirmiles: "",
-                      airmilesValue: "",
-                      exampleSpendAirmiles: "",
-                    });
-                  } else {
-                    updateCurrentCard({ hasAirmiles });
-                  }
-                }}
-              />
-            }
-            label="Does your card support airmiles transfer?"
-          />
-
-          {currentCard.hasAirmiles && (
-            <Box sx={{ mt: 2 }}>
-              <form onSubmit={calculateAirmilesRewards}>
-                <Grid container spacing={3}>
-                  <Grid item xs={12} md={6}>
-                    <TextField
-                      fullWidth
-                      label="1 Point = How Many Air Miles"
-                      variant="outlined"
-                      type="number"
-                      step="0.01"
-                      value={currentCard.pointsToAirmiles}
-                      onChange={(e) =>
-                        updateCurrentCard({ pointsToAirmiles: e.target.value })
-                      }
-                      required
-                    />
-                  </Grid>
-                  <Grid item xs={12} md={6}>
-                    <TextField
-                      fullWidth
-                      label="1 Air Mile Equals (₹)"
-                      variant="outlined"
-                      type="number"
-                      step="0.01"
-                      value={currentCard.airmilesValue}
-                      onChange={(e) =>
-                        updateCurrentCard({ airmilesValue: e.target.value })
-                      }
-                      required
-                    />
-                  </Grid>
-                  <Grid item xs={12}>
-                    <Button
-                      variant="contained"
-                      color="secondary"
-                      type="submit"
-                      disabled={
-                        !currentCard.pointsToAirmiles ||
-                        !currentCard.airmilesValue ||
-                        !currentCard.basicResult
-                      }
-                    >
-                      Calculate Airmiles Rewards
-                    </Button>
-                  </Grid>
-                </Grid>
-              </form>
-            </Box>
-          )}
+          {/* Action Buttons */}
+          <Box
+            sx={{
+              display: "flex",
+              gap: 2,
+              mt: 3,
+              justifyContent: "center",
+              flexWrap: "wrap",
+            }}
+          >
+            <Button
+              variant="contained"
+              size="large"
+              startIcon={<Calculate />}
+              onClick={calculateBasicRewards}
+              disabled={!isFormValid}
+            >
+              Calculate Rewards
+            </Button>
+            {hasResults && (
+              <Button
+                variant="outlined"
+                size="large"
+                startIcon={<StarBorder />}
+                onClick={saveAsFavorite}
+                color="secondary"
+              >
+                Save as Favorite
+              </Button>
+            )}
+            <Button variant="outlined" size="large" onClick={resetCurrentCard}>
+              Reset
+            </Button>
+          </Box>
         </CardContent>
       </Card>
 
-      {/* Airmiles Results */}
-      {currentCard.hasAirmiles && currentCard.airmilesResult && (
+      {/* Results Section */}
+      {hasResults && (
         <Card variant="outlined" sx={{ mb: 3 }}>
-          <CardContent>
-            <Typography variant="h6" gutterBottom color="secondary">
-              Airmiles Rewards Percentage
-            </Typography>
-            <Grid container spacing={2}>
-              <ResultItem
-                label="Airmiles Reward Percentage"
-                value={`${currentCard.airmilesResult.airmilesRewardPercentage.toFixed(
-                  2
-                )}%`}
-                boldLabel={true}
-              />
-            </Grid>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Airmiles Example Calculation */}
-      {currentCard.hasAirmiles && currentCard.airmilesResult && (
-        <Card variant="outlined" sx={{ mb: 3 }}>
-          <CardContent>
-            <Typography variant="h6" gutterBottom color="secondary">
-              Airmiles Example Calculation
-            </Typography>
-            <Grid container spacing={3}>
-              <Grid item xs={12} md={8}>
-                <TextField
-                  fullWidth
-                  label="Example Spend Amount (₹)"
-                  variant="outlined"
-                  value={formatNumber(currentCard.exampleSpendAirmiles)}
-                  onChange={(e) =>
-                    updateCurrentCard({
-                      exampleSpendAirmiles: e.target.value.replace(/\D/g, ""),
-                    })
-                  }
-                />
-              </Grid>
-            </Grid>
-
-            {currentCard.exampleSpendAirmiles &&
-              calculateExampleAirmilesRewards() && (
-                <Box sx={{ mt: 2 }}>
-                  <Grid container spacing={2}>
-                    <ResultItem
-                      label="Air Miles Earned"
-                      value={calculateExampleAirmilesRewards().airmilesEarned.toFixed(
-                        2
-                      )}
-                    />
-                    <ResultItem
-                      label="Reward Amount"
-                      value={calculateExampleAirmilesRewards().rewardAmount}
-                      boldLabel={true}
-                    />
-                  </Grid>
-                </Box>
-              )}
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Summary and Save Buttons */}
-      {currentCard.basicResult && (
-        <Box
-          sx={{
-            textAlign: "center",
-            mb: 3,
-            display: "flex",
-            gap: 2,
-            justifyContent: "center",
-          }}
-        >
-          <Button
-            variant="contained"
-            color="success"
-            size="large"
-            onClick={() => updateCurrentCard({ showSummary: true })}
-          >
-            Get Summary
-          </Button>
-          <Button
-            variant="outlined"
-            color="secondary"
-            size="large"
-            onClick={saveAsFavorite}
-            startIcon={<StarBorder />}
-          >
-            Save Favorite
-          </Button>
-        </Box>
-      )}
-
-      {/* Summary Table */}
-      {currentCard.showSummary && currentCard.basicResult && (
-        <Card variant="outlined">
           <CardContent>
             <Typography
-              variant="h5"
+              variant="h6"
               gutterBottom
-              color="success.main"
-              sx={{ textAlign: "center" }}
+              color="primary"
+              sx={{ display: "flex", alignItems: "center", gap: 1 }}
             >
-              Credit Card Rewards Summary
+              <TrendingUp />
+              Your Rewards Summary
             </Typography>
-            <Divider sx={{ mb: 2 }} />
 
-            <TableContainer component={Paper} variant="outlined">
-              <Table>
-                <TableHead>
-                  <TableRow sx={{ bgcolor: "primary.light" }}>
-                    <TableCell>
-                      <strong>Metric</strong>
-                    </TableCell>
-                    <TableCell>
-                      <strong>Basic Rewards</strong>
-                    </TableCell>
-                    {currentCard.hasAirmiles && currentCard.airmilesResult && (
-                      <TableCell>
-                        <strong>Airmiles Rewards</strong>
-                      </TableCell>
-                    )}
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  <TableRow>
-                    <TableCell>
-                      <strong>Card Name</strong>
-                    </TableCell>
-                    <TableCell
-                      colSpan={
-                        currentCard.hasAirmiles && currentCard.airmilesResult
-                          ? 2
-                          : 1
-                      }
+            <Grid container spacing={3}>
+              {/* Basic Rewards */}
+              <Grid item xs={12} md={6}>
+                <Paper
+                  sx={{ p: 3, textAlign: "center", bgcolor: "success.light" }}
+                >
+                  <Typography
+                    variant="h4"
+                    color="success.dark"
+                    fontWeight="bold"
+                  >
+                    {currentCard.basicResult.rewardPercentage.toFixed(2)}%
+                  </Typography>
+                  <Typography variant="body1" color="success.dark">
+                    Basic Reward Rate
+                  </Typography>
+                </Paper>
+              </Grid>
+
+              {/* Airmiles Rewards */}
+              {currentCard.hasAirmiles && currentCard.airmilesResult && (
+                <Grid item xs={12} md={6}>
+                  <Paper
+                    sx={{ p: 3, textAlign: "center", bgcolor: "info.light" }}
+                  >
+                    <Typography
+                      variant="h4"
+                      color="info.dark"
+                      fontWeight="bold"
                     >
-                      {currentCard.cardName}
-                    </TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell>Reward Percentage</TableCell>
-                    <TableCell>
-                      {currentCard.basicResult.rewardPercentage.toFixed(2)}%
-                    </TableCell>
-                    {currentCard.hasAirmiles && currentCard.airmilesResult && (
-                      <TableCell>
-                        {currentCard.airmilesResult.airmilesRewardPercentage.toFixed(
-                          2
+                      {currentCard.airmilesResult.airmilesRewardPercentage.toFixed(
+                        2
+                      )}
+                      %
+                    </Typography>
+                    <Typography variant="body1" color="info.dark">
+                      Airmiles Reward Rate
+                    </Typography>
+                  </Paper>
+                </Grid>
+              )}
+
+              {/* Example Calculation */}
+              <Grid item xs={12}>
+                <Divider sx={{ my: 2 }} />
+                <Typography variant="h6" gutterBottom>
+                  Example: On ₹{formatNumber(currentCard.exampleSpend)} spend
+                </Typography>
+                <Grid container spacing={2}>
+                  <Grid item xs={12} sm={6}>
+                    <Box sx={{ p: 2, bgcolor: "grey.50", borderRadius: 1 }}>
+                      <Typography variant="body2" color="text.secondary">
+                        Basic Rewards
+                      </Typography>
+                      <Typography
+                        variant="h6"
+                        color="success.main"
+                        fontWeight="bold"
+                      >
+                        ₹
+                        {calculateExampleRewards()?.rewardAmount?.toLocaleString(
+                          "en-IN",
+                          {
+                            maximumFractionDigits: 0,
+                          }
                         )}
-                        %
-                      </TableCell>
+                      </Typography>
+                    </Box>
+                  </Grid>
+                  {currentCard.hasAirmiles &&
+                    currentCard.airmilesResult &&
+                    calculateExampleAirmilesRewards() && (
+                      <Grid item xs={12} sm={6}>
+                        <Box sx={{ p: 2, bgcolor: "grey.50", borderRadius: 1 }}>
+                          <Typography variant="body2" color="text.secondary">
+                            Airmiles Rewards
+                          </Typography>
+                          <Typography
+                            variant="h6"
+                            color="info.main"
+                            fontWeight="bold"
+                          >
+                            ₹
+                            {calculateExampleAirmilesRewards()?.rewardAmount?.toLocaleString(
+                              "en-IN",
+                              { maximumFractionDigits: 0 }
+                            )}
+                          </Typography>
+                        </Box>
+                      </Grid>
                     )}
-                  </TableRow>
-                  {currentCard.exampleSpend && (
-                    <>
-                      <TableRow sx={{ bgcolor: "grey.50" }}>
-                        <TableCell>
-                          <strong>
-                            Example: ₹{formatNumber(currentCard.exampleSpend)}{" "}
-                            Spend
-                          </strong>
-                        </TableCell>
-                        <TableCell>
-                          <strong>Basic Rewards</strong>
-                        </TableCell>
-                        {currentCard.hasAirmiles &&
-                          currentCard.airmilesResult && (
-                            <TableCell>
-                              <strong>Airmiles Rewards</strong>
-                            </TableCell>
-                          )}
-                      </TableRow>
-                      <TableRow>
-                        <TableCell>Points/Miles Earned</TableCell>
-                        <TableCell>
-                          {calculateExampleRewards()?.pointsEarned.toFixed(0)}{" "}
-                          points
-                        </TableCell>
-                        {currentCard.hasAirmiles &&
-                          currentCard.airmilesResult &&
-                          currentCard.exampleSpendAirmiles && (
-                            <TableCell>
-                              {calculateExampleAirmilesRewards()?.airmilesEarned.toFixed(
-                                2
-                              )}{" "}
-                              miles
-                            </TableCell>
-                          )}
-                      </TableRow>
-                      <TableRow>
-                        <TableCell>Reward Value</TableCell>
-                        <TableCell>
-                          ₹
-                          {calculateExampleRewards()?.rewardAmount.toLocaleString(
-                            "en-IN",
-                            { maximumFractionDigits: 2 }
-                          )}
-                        </TableCell>
-                        {currentCard.hasAirmiles &&
-                          currentCard.airmilesResult &&
-                          currentCard.exampleSpendAirmiles && (
-                            <TableCell>
-                              ₹
-                              {calculateExampleAirmilesRewards()?.rewardAmount.toLocaleString(
-                                "en-IN",
-                                { maximumFractionDigits: 2 }
-                              )}
-                            </TableCell>
-                          )}
-                      </TableRow>
-                    </>
-                  )}
-                </TableBody>
-              </Table>
-            </TableContainer>
+                </Grid>
+              </Grid>
+
+              {/* Best Option */}
+              {currentCard.hasAirmiles && currentCard.airmilesResult && (
+                <Grid item xs={12}>
+                  <Alert
+                    severity={
+                      currentCard.airmilesResult.airmilesRewardPercentage >
+                      currentCard.basicResult.rewardPercentage
+                        ? "info"
+                        : "success"
+                    }
+                    sx={{ mt: 2 }}
+                  >
+                    <AlertTitle>Best Option</AlertTitle>
+                    {currentCard.airmilesResult.airmilesRewardPercentage >
+                    currentCard.basicResult.rewardPercentage
+                      ? `Use airmiles transfer for ${currentCard.airmilesResult.airmilesRewardPercentage.toFixed(
+                          2
+                        )}% rewards`
+                      : `Stick with basic rewards for ${currentCard.basicResult.rewardPercentage.toFixed(
+                          2
+                        )}% rewards`}
+                  </Alert>
+                </Grid>
+              )}
+            </Grid>
           </CardContent>
         </Card>
       )}
