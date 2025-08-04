@@ -47,7 +47,8 @@ function CreditCardCalculator() {
       name: "Card 1",
       cardName: "",
       spendAmount: "",
-      pointsEarned: "",
+      basicPointsEarned: "",
+      specialCategoryPoints: "",
       pointValue: "",
       exampleSpend: "100000",
       hasAirmiles: false,
@@ -55,6 +56,7 @@ function CreditCardCalculator() {
       airmilesValue: "",
       basicResult: null,
       airmilesResult: null,
+      specialCategoryResult: null,
     },
   ]);
 
@@ -107,7 +109,8 @@ function CreditCardCalculator() {
       name: `Card ${cards.length + 1}`,
       cardName: "",
       spendAmount: "",
-      pointsEarned: "",
+      basicPointsEarned: "",
+      specialCategoryPoints: "",
       pointValue: "",
       exampleSpend: "100000",
       hasAirmiles: false,
@@ -115,6 +118,7 @@ function CreditCardCalculator() {
       airmilesValue: "",
       basicResult: null,
       airmilesResult: null,
+      specialCategoryResult: null,
     };
     setCards((prevCards) => [...prevCards, newCard]);
     setActiveTab(cards.length);
@@ -136,19 +140,36 @@ function CreditCardCalculator() {
     e.preventDefault();
     const currentCard = getCurrentCard();
     const spend = parseFloat(currentCard.spendAmount);
-    const points = parseFloat(currentCard.pointsEarned);
+    const basicPoints = parseFloat(currentCard.basicPointsEarned);
+    const specialCategoryPoints =
+      parseFloat(currentCard.specialCategoryPoints) || 0;
     const value = parseFloat(currentCard.pointValue);
 
-    if (!spend || !points || !value) return;
+    if (!spend || !basicPoints || !value) return;
 
-    // Calculate reward percentage
-    const rewardPercentage = ((points * value) / spend) * 100;
+    // Calculate basic points reward percentage
+    const basicRewardPercentage = ((basicPoints * value) / spend) * 100;
 
     const basicResult = {
-      rewardPercentage,
-      pointsPerRupee: points / spend,
+      rewardPercentage: basicRewardPercentage,
+      pointsPerRupee: basicPoints / spend,
       valuePerPoint: value,
+      totalPoints: basicPoints,
     };
+
+    // Calculate special category points if provided (completely separate calculation)
+    let specialCategoryResult = null;
+    if (specialCategoryPoints > 0) {
+      const specialCategoryRewardPercentage =
+        ((specialCategoryPoints * value) / spend) * 100;
+
+      specialCategoryResult = {
+        rewardPercentage: specialCategoryRewardPercentage,
+        pointsPerRupee: specialCategoryPoints / spend,
+        valuePerPoint: value,
+        totalPoints: specialCategoryPoints,
+      };
+    }
 
     let airmilesResult = null;
 
@@ -162,8 +183,8 @@ function CreditCardCalculator() {
       const airmilesVal = parseFloat(currentCard.airmilesValue);
 
       if (airmilesRatio && airmilesVal) {
-        // Calculate airmiles earned from the points
-        const airmilesEarned = points * airmilesRatio;
+        // Calculate airmiles from basic points only (special category points are separate)
+        const airmilesEarned = basicPoints * airmilesRatio;
         const airmilesRewardValue = airmilesEarned * airmilesVal;
         const airmilesRewardPercentage = (airmilesRewardValue / spend) * 100;
 
@@ -176,7 +197,7 @@ function CreditCardCalculator() {
       }
     }
 
-    updateCurrentCard({ basicResult, airmilesResult });
+    updateCurrentCard({ basicResult, specialCategoryResult, airmilesResult });
   };
 
   const calculateExampleRewards = () => {
@@ -207,11 +228,54 @@ function CreditCardCalculator() {
     };
   };
 
+  const calculateExampleSpecialCategoryAirmilesRewards = () => {
+    const currentCard = getCurrentCard();
+    if (
+      !currentCard.exampleSpend ||
+      !currentCard.specialCategoryResult ||
+      !currentCard.hasAirmiles ||
+      !currentCard.pointsToAirmiles ||
+      !currentCard.airmilesValue
+    )
+      return;
+
+    const spend = parseFloat(currentCard.exampleSpend.replace(/,/g, ""));
+    const specialCategoryPoints =
+      spend * currentCard.specialCategoryResult.pointsPerRupee;
+    const airmilesRatio = parseFloat(currentCard.pointsToAirmiles);
+    const airmilesVal = parseFloat(currentCard.airmilesValue);
+
+    const airmilesEarned = specialCategoryPoints * airmilesRatio;
+    const rewardAmount = airmilesEarned * airmilesVal;
+
+    return {
+      airmilesEarned,
+      rewardAmount,
+    };
+  };
+
+  const calculateExampleSpecialCategoryRewards = () => {
+    const currentCard = getCurrentCard();
+    if (!currentCard.exampleSpend || !currentCard.specialCategoryResult) return;
+
+    const spend = parseFloat(currentCard.exampleSpend.replace(/,/g, ""));
+    const pointsEarned =
+      spend * currentCard.specialCategoryResult.pointsPerRupee;
+    const rewardAmount =
+      pointsEarned * currentCard.specialCategoryResult.valuePerPoint;
+
+    return {
+      pointsEarned,
+      rewardAmount,
+    };
+  };
+
   const resetCurrentCard = () => {
     updateCurrentCard({
       cardName: "",
       spendAmount: "",
-      pointsEarned: "",
+      basicPointsEarned: "",
+      specialCategoryPoints: "",
       pointValue: "",
       exampleSpend: "100000",
       hasAirmiles: false,
@@ -219,6 +283,7 @@ function CreditCardCalculator() {
       airmilesValue: "",
       basicResult: null,
       airmilesResult: null,
+      specialCategoryResult: null,
     });
   };
 
@@ -292,7 +357,7 @@ function CreditCardCalculator() {
   const isFormValid =
     currentCard.cardName &&
     currentCard.spendAmount &&
-    currentCard.pointsEarned &&
+    currentCard.basicPointsEarned &&
     currentCard.pointValue;
   const hasResults = currentCard.basicResult !== null;
 
@@ -326,8 +391,8 @@ function CreditCardCalculator() {
       <Alert severity="info" sx={{ mb: 3 }}>
         <AlertTitle>How to use this calculator</AlertTitle>
         Fill in your card's reward structure below. For example: If you spend
-        ₹100 and get 2 points, and each point is worth ₹0.25, your reward rate
-        is 0.5%.
+        ₹100 and get 2 points, and each point is worth ₹1, your reward rate is
+        2%.
       </Alert>
 
       {/* Favorites Section */}
@@ -470,15 +535,31 @@ function CreditCardCalculator() {
             <Grid item xs={12} sm={6}>
               <TextField
                 fullWidth
-                label="Points Earned"
+                label="Basic Points Earned"
                 variant="outlined"
                 type="number"
-                value={currentCard.pointsEarned}
+                value={currentCard.basicPointsEarned}
                 onChange={(e) =>
-                  updateCurrentCard({ pointsEarned: e.target.value })
+                  updateCurrentCard({ basicPointsEarned: e.target.value })
                 }
                 placeholder="e.g., 2"
-                helperText="Points earned for the above spend"
+                helperText="Regular points earned for the above spend"
+                required
+              />
+            </Grid>
+
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                label="Special Category Points (Optional)"
+                variant="outlined"
+                type="number"
+                value={currentCard.specialCategoryPoints}
+                onChange={(e) =>
+                  updateCurrentCard({ specialCategoryPoints: e.target.value })
+                }
+                placeholder="e.g., 10"
+                helperText="Total points on special categories (booking via a parter portal, etc.)"
               />
             </Grid>
 
@@ -631,7 +712,20 @@ function CreditCardCalculator() {
 
             <Grid container spacing={3}>
               {/* Basic Rewards */}
-              <Grid item xs={12} md={6}>
+              <Grid
+                item
+                xs={12}
+                md={
+                  currentCard.specialCategoryResult &&
+                  currentCard.hasAirmiles &&
+                  currentCard.pointsToAirmiles &&
+                  currentCard.airmilesValue
+                    ? 3
+                    : currentCard.specialCategoryResult
+                    ? 6
+                    : 6
+                }
+              >
                 <Paper
                   sx={{ p: 3, textAlign: "center", bgcolor: "success.light" }}
                 >
@@ -643,14 +737,58 @@ function CreditCardCalculator() {
                     {currentCard.basicResult.rewardPercentage.toFixed(2)}%
                   </Typography>
                   <Typography variant="body1" color="success.dark">
-                    Basic Reward Rate
+                    Regular Spending Rate
                   </Typography>
                 </Paper>
               </Grid>
 
-              {/* Airmiles Rewards */}
+              {/* Special Category Rewards */}
+              {currentCard.specialCategoryResult && (
+                <Grid
+                  item
+                  xs={12}
+                  md={
+                    currentCard.hasAirmiles &&
+                    currentCard.pointsToAirmiles &&
+                    currentCard.airmilesValue
+                      ? 3
+                      : 6
+                  }
+                >
+                  <Paper
+                    sx={{ p: 3, textAlign: "center", bgcolor: "warning.light" }}
+                  >
+                    <Typography
+                      variant="h4"
+                      color="warning.dark"
+                      fontWeight="bold"
+                    >
+                      {currentCard.specialCategoryResult.rewardPercentage.toFixed(
+                        2
+                      )}
+                      %
+                    </Typography>
+                    <Typography variant="body1" color="warning.dark">
+                      Special Category Rate
+                    </Typography>
+                  </Paper>
+                </Grid>
+              )}
+
+              {/* Basic Points Airmiles Rewards */}
               {currentCard.hasAirmiles && currentCard.airmilesResult && (
-                <Grid item xs={12} md={6}>
+                <Grid
+                  item
+                  xs={12}
+                  md={
+                    currentCard.specialCategoryResult &&
+                    currentCard.hasAirmiles &&
+                    currentCard.pointsToAirmiles &&
+                    currentCard.airmilesValue
+                      ? 3
+                      : 6
+                  }
+                >
                   <Paper
                     sx={{ p: 3, textAlign: "center", bgcolor: "info.light" }}
                   >
@@ -665,11 +803,41 @@ function CreditCardCalculator() {
                       %
                     </Typography>
                     <Typography variant="body1" color="info.dark">
-                      Airmiles Reward Rate
+                      Basic → Airmiles Rate
                     </Typography>
                   </Paper>
                 </Grid>
               )}
+
+              {/* Special Category Points Airmiles Rewards */}
+              {currentCard.specialCategoryResult &&
+                currentCard.hasAirmiles &&
+                currentCard.pointsToAirmiles &&
+                currentCard.airmilesValue && (
+                  <Grid item xs={12} md={3}>
+                    <Paper
+                      sx={{ p: 3, textAlign: "center", bgcolor: "info.light" }}
+                    >
+                      <Typography
+                        variant="h4"
+                        color="info.dark"
+                        fontWeight="bold"
+                      >
+                        {(
+                          ((currentCard.specialCategoryResult.pointsPerRupee *
+                            parseFloat(currentCard.pointsToAirmiles) *
+                            parseFloat(currentCard.airmilesValue)) /
+                            1) *
+                          100
+                        ).toFixed(2)}
+                        %
+                      </Typography>
+                      <Typography variant="body1" color="info.dark">
+                        Special → Airmiles Rate
+                      </Typography>
+                    </Paper>
+                  </Grid>
+                )}
 
               {/* Example Calculation */}
               <Grid item xs={12}>
@@ -678,10 +846,24 @@ function CreditCardCalculator() {
                   Example: On ₹{formatNumber(currentCard.exampleSpend)} spend
                 </Typography>
                 <Grid container spacing={2}>
-                  <Grid item xs={12} sm={6}>
+                  {/* Basic Rewards Example */}
+                  <Grid
+                    item
+                    xs={12}
+                    sm={
+                      currentCard.specialCategoryResult &&
+                      calculateExampleSpecialCategoryAirmilesRewards()
+                        ? 3
+                        : currentCard.specialCategoryResult ||
+                          (currentCard.hasAirmiles &&
+                            currentCard.airmilesResult)
+                        ? 4
+                        : 12
+                    }
+                  >
                     <Box sx={{ p: 2, bgcolor: "grey.50", borderRadius: 1 }}>
                       <Typography variant="body2" color="text.secondary">
-                        Basic Rewards
+                        Regular Spending
                       </Typography>
                       <Typography
                         variant="h6"
@@ -698,13 +880,60 @@ function CreditCardCalculator() {
                       </Typography>
                     </Box>
                   </Grid>
+
+                  {/* Special Category Rewards Example */}
+                  {currentCard.specialCategoryResult &&
+                    calculateExampleSpecialCategoryRewards() && (
+                      <Grid
+                        item
+                        xs={12}
+                        sm={
+                          calculateExampleSpecialCategoryAirmilesRewards()
+                            ? 3
+                            : currentCard.hasAirmiles &&
+                              currentCard.airmilesResult
+                            ? 4
+                            : 8
+                        }
+                      >
+                        <Box sx={{ p: 2, bgcolor: "grey.50", borderRadius: 1 }}>
+                          <Typography variant="body2" color="text.secondary">
+                            Special Categories
+                          </Typography>
+                          <Typography
+                            variant="h6"
+                            color="warning.main"
+                            fontWeight="bold"
+                          >
+                            ₹
+                            {calculateExampleSpecialCategoryRewards()?.rewardAmount?.toLocaleString(
+                              "en-IN",
+                              { maximumFractionDigits: 0 }
+                            )}
+                          </Typography>
+                        </Box>
+                      </Grid>
+                    )}
+
+                  {/* Basic Points Airmiles Example */}
                   {currentCard.hasAirmiles &&
                     currentCard.airmilesResult &&
                     calculateExampleAirmilesRewards() && (
-                      <Grid item xs={12} sm={6}>
+                      <Grid
+                        item
+                        xs={12}
+                        sm={
+                          currentCard.specialCategoryResult &&
+                          calculateExampleSpecialCategoryAirmilesRewards()
+                            ? 3
+                            : currentCard.specialCategoryResult
+                            ? 4
+                            : 8
+                        }
+                      >
                         <Box sx={{ p: 2, bgcolor: "grey.50", borderRadius: 1 }}>
                           <Typography variant="body2" color="text.secondary">
-                            Airmiles Rewards
+                            Basic → Airmiles
                           </Typography>
                           <Typography
                             variant="h6"
@@ -720,33 +949,99 @@ function CreditCardCalculator() {
                         </Box>
                       </Grid>
                     )}
+
+                  {/* Special Category Points Airmiles Example */}
+                  {currentCard.specialCategoryResult &&
+                    currentCard.hasAirmiles &&
+                    calculateExampleSpecialCategoryAirmilesRewards() && (
+                      <Grid item xs={12} sm={3}>
+                        <Box sx={{ p: 2, bgcolor: "grey.50", borderRadius: 1 }}>
+                          <Typography variant="body2" color="text.secondary">
+                            Special → Airmiles
+                          </Typography>
+                          <Typography
+                            variant="h6"
+                            color="info.main"
+                            fontWeight="bold"
+                          >
+                            ₹
+                            {calculateExampleSpecialCategoryAirmilesRewards()?.rewardAmount?.toLocaleString(
+                              "en-IN",
+                              { maximumFractionDigits: 0 }
+                            )}
+                          </Typography>
+                        </Box>
+                      </Grid>
+                    )}
                 </Grid>
               </Grid>
 
               {/* Best Option */}
-              {currentCard.hasAirmiles && currentCard.airmilesResult && (
-                <Grid item xs={12}>
-                  <Alert
-                    severity={
-                      currentCard.airmilesResult.airmilesRewardPercentage >
-                      currentCard.basicResult.rewardPercentage
-                        ? "info"
-                        : "success"
-                    }
-                    sx={{ mt: 2 }}
-                  >
-                    <AlertTitle>Best Option</AlertTitle>
-                    {currentCard.airmilesResult.airmilesRewardPercentage >
-                    currentCard.basicResult.rewardPercentage
-                      ? `Use airmiles transfer for ${currentCard.airmilesResult.airmilesRewardPercentage.toFixed(
-                          2
-                        )}% rewards`
-                      : `Stick with basic rewards for ${currentCard.basicResult.rewardPercentage.toFixed(
-                          2
-                        )}% rewards`}
-                  </Alert>
-                </Grid>
-              )}
+              <Grid item xs={12}>
+                <Alert severity="info" sx={{ mt: 2 }}>
+                  <AlertTitle>Best Option</AlertTitle>
+                  {(() => {
+                    const basicRate = currentCard.basicResult.rewardPercentage;
+                    const specialCategoryRate =
+                      currentCard.specialCategoryResult
+                        ? currentCard.specialCategoryResult.rewardPercentage
+                        : 0;
+                    const airmilesRate =
+                      currentCard.hasAirmiles && currentCard.airmilesResult
+                        ? currentCard.airmilesResult.airmilesRewardPercentage
+                        : 0;
+
+                    // Calculate special category airmiles rate if available
+                    const specialCategoryAirmilesRate =
+                      currentCard.specialCategoryResult &&
+                      currentCard.hasAirmiles &&
+                      currentCard.pointsToAirmiles &&
+                      currentCard.airmilesValue
+                        ? ((currentCard.specialCategoryResult.pointsPerRupee *
+                            parseFloat(currentCard.pointsToAirmiles) *
+                            parseFloat(currentCard.airmilesValue)) /
+                            1) *
+                          100
+                        : 0;
+
+                    const rates = [
+                      { rate: basicRate, type: "regular spending" },
+                      ...(specialCategoryRate > 0
+                        ? [
+                            {
+                              rate: specialCategoryRate,
+                              type: "special categories",
+                            },
+                          ]
+                        : []),
+                      ...(airmilesRate > 0
+                        ? [
+                            {
+                              rate: airmilesRate,
+                              type: "basic points → airmiles",
+                            },
+                          ]
+                        : []),
+                      ...(specialCategoryAirmilesRate > 0
+                        ? [
+                            {
+                              rate: specialCategoryAirmilesRate,
+                              type: "special category → airmiles",
+                            },
+                          ]
+                        : []),
+                    ];
+
+                    const bestOption = rates.reduce((best, current) =>
+                      current.rate > best.rate ? current : best
+                    );
+
+                    return `Best option: ${
+                      bestOption.type
+                    } at ${bestOption.rate.toFixed(2)}% rewards`;
+                  })()}
+                </Alert>
+              </Grid>
             </Grid>
           </CardContent>
         </Card>
@@ -812,17 +1107,7 @@ function CreditCardCalculator() {
                           }
                         />
                       }
-                      label={
-                        <Box>
-                          <Typography variant="body1" fontWeight="medium">
-                            {card.cardName || card.name}
-                          </Typography>
-                          <Typography variant="body2" color="text.secondary">
-                            {card.basicResult.rewardPercentage.toFixed(2)}%
-                            reward rate
-                          </Typography>
-                        </Box>
-                      }
+                      label={card.cardName || card.name}
                     />
                   ))}
               </FormGroup>
@@ -875,13 +1160,60 @@ function CreditCardCalculator() {
                       ))}
                     </TableRow>
 
-                    {/* Airmiles Reward Percentage */}
+                    {/* Special Category Reward Percentage */}
+                    {getSelectedCards().some(
+                      (card) => card.specialCategoryResult
+                    ) && (
+                      <TableRow>
+                        <TableCell>
+                          <strong>Special Category Rate</strong>
+                        </TableCell>
+                        {getSelectedCards().map((card) => (
+                          <TableCell key={card.id} align="center">
+                            {card.specialCategoryResult ? (
+                              <Typography
+                                variant="body2"
+                                fontWeight="bold"
+                                color={
+                                  Math.max(
+                                    ...getSelectedCards()
+                                      .filter((c) => c.specialCategoryResult)
+                                      .map(
+                                        (c) =>
+                                          c.specialCategoryResult
+                                            .rewardPercentage
+                                      )
+                                  ) ===
+                                  card.specialCategoryResult.rewardPercentage
+                                    ? "success.main"
+                                    : "text.primary"
+                                }
+                              >
+                                {card.specialCategoryResult.rewardPercentage.toFixed(
+                                  2
+                                )}
+                                %
+                              </Typography>
+                            ) : (
+                              <Typography
+                                variant="body2"
+                                color="text.secondary"
+                              >
+                                N/A
+                              </Typography>
+                            )}
+                          </TableCell>
+                        ))}
+                      </TableRow>
+                    )}
+
+                    {/* Basic Points Airmiles Reward Percentage */}
                     {getSelectedCards().some(
                       (card) => card.hasAirmiles && card.airmilesResult
                     ) && (
                       <TableRow>
                         <TableCell>
-                          <strong>Airmiles Reward Rate</strong>
+                          <strong>Basic → Airmiles Rate</strong>
                         </TableCell>
                         {getSelectedCards().map((card) => (
                           <TableCell key={card.id} align="center">
@@ -909,6 +1241,78 @@ function CreditCardCalculator() {
                                 {card.airmilesResult.airmilesRewardPercentage.toFixed(
                                   2
                                 )}
+                                %
+                              </Typography>
+                            ) : (
+                              <Typography
+                                variant="body2"
+                                color="text.secondary"
+                              >
+                                N/A
+                              </Typography>
+                            )}
+                          </TableCell>
+                        ))}
+                      </TableRow>
+                    )}
+
+                    {/* Special Category Points Airmiles Reward Percentage */}
+                    {getSelectedCards().some(
+                      (card) =>
+                        card.specialCategoryResult &&
+                        card.hasAirmiles &&
+                        card.pointsToAirmiles &&
+                        card.airmilesValue
+                    ) && (
+                      <TableRow>
+                        <TableCell>
+                          <strong>Special → Airmiles Rate</strong>
+                        </TableCell>
+                        {getSelectedCards().map((card) => (
+                          <TableCell key={card.id} align="center">
+                            {card.specialCategoryResult &&
+                            card.hasAirmiles &&
+                            card.pointsToAirmiles &&
+                            card.airmilesValue ? (
+                              <Typography
+                                variant="body2"
+                                fontWeight="bold"
+                                color={
+                                  Math.max(
+                                    ...getSelectedCards()
+                                      .filter(
+                                        (c) =>
+                                          c.specialCategoryResult &&
+                                          c.hasAirmiles &&
+                                          c.pointsToAirmiles &&
+                                          c.airmilesValue
+                                      )
+                                      .map(
+                                        (c) =>
+                                          ((c.specialCategoryResult
+                                            .pointsPerRupee *
+                                            parseFloat(c.pointsToAirmiles) *
+                                            parseFloat(c.airmilesValue)) /
+                                            1) *
+                                          100
+                                      )
+                                  ) ===
+                                  ((card.specialCategoryResult.pointsPerRupee *
+                                    parseFloat(card.pointsToAirmiles) *
+                                    parseFloat(card.airmilesValue)) /
+                                    1) *
+                                    100
+                                    ? "success.main"
+                                    : "text.primary"
+                                }
+                              >
+                                {(
+                                  ((card.specialCategoryResult.pointsPerRupee *
+                                    parseFloat(card.pointsToAirmiles) *
+                                    parseFloat(card.airmilesValue)) /
+                                    1) *
+                                  100
+                                ).toFixed(2)}
                                 %
                               </Typography>
                             ) : (
@@ -999,7 +1403,7 @@ function CreditCardCalculator() {
                     ) && (
                       <TableRow>
                         <TableCell>
-                          <strong>Airmiles Reward Amount</strong>
+                          <strong>Basic → Airmiles Amount</strong>
                         </TableCell>
                         {getSelectedCards().map((card) => (
                           <TableCell key={card.id} align="center">
@@ -1054,6 +1458,150 @@ function CreditCardCalculator() {
                         ))}
                       </TableRow>
                     )}
+
+                    {/* Special Category Reward Amount */}
+                    {getSelectedCards().some(
+                      (card) => card.specialCategoryResult
+                    ) && (
+                      <TableRow>
+                        <TableCell>
+                          <strong>Special Category Reward Amount</strong>
+                        </TableCell>
+                        {getSelectedCards().map((card) => (
+                          <TableCell key={card.id} align="center">
+                            {card.specialCategoryResult ? (
+                              (() => {
+                                const pointsPerRupee =
+                                  card.specialCategoryResult.pointsPerRupee;
+                                const valuePerPoint =
+                                  card.specialCategoryResult.valuePerPoint;
+                                const rewardAmount =
+                                  100000 * pointsPerRupee * valuePerPoint;
+                                return (
+                                  <Typography
+                                    variant="body2"
+                                    color={
+                                      Math.max(
+                                        ...getSelectedCards()
+                                          .filter(
+                                            (c) => c.specialCategoryResult
+                                          )
+                                          .map((c) => {
+                                            const ppr =
+                                              c.specialCategoryResult
+                                                .pointsPerRupee;
+                                            const vpp =
+                                              c.specialCategoryResult
+                                                .valuePerPoint;
+                                            return 100000 * ppr * vpp;
+                                          })
+                                      ) === rewardAmount
+                                        ? "success.main"
+                                        : "text.primary"
+                                    }
+                                  >
+                                    ₹
+                                    {rewardAmount.toLocaleString("en-IN", {
+                                      maximumFractionDigits: 0,
+                                    })}
+                                  </Typography>
+                                );
+                              })()
+                            ) : (
+                              <Typography
+                                variant="body2"
+                                color="text.secondary"
+                              >
+                                N/A
+                              </Typography>
+                            )}
+                          </TableCell>
+                        ))}
+                      </TableRow>
+                    )}
+
+                    {/* Special Category Airmiles Reward Amount */}
+                    {getSelectedCards().some(
+                      (card) =>
+                        card.specialCategoryResult &&
+                        card.hasAirmiles &&
+                        card.pointsToAirmiles &&
+                        card.airmilesValue
+                    ) && (
+                      <TableRow>
+                        <TableCell>
+                          <strong>Special → Airmiles Amount</strong>
+                        </TableCell>
+                        {getSelectedCards().map((card) => (
+                          <TableCell key={card.id} align="center">
+                            {card.specialCategoryResult &&
+                            card.hasAirmiles &&
+                            card.pointsToAirmiles &&
+                            card.airmilesValue ? (
+                              (() => {
+                                const specialCategoryPoints =
+                                  100000 *
+                                  card.specialCategoryResult.pointsPerRupee;
+                                const airmilesRatio = parseFloat(
+                                  card.pointsToAirmiles
+                                );
+                                const airmilesValue = parseFloat(
+                                  card.airmilesValue
+                                );
+                                const rewardAmount =
+                                  specialCategoryPoints *
+                                  airmilesRatio *
+                                  airmilesValue;
+                                return (
+                                  <Typography
+                                    variant="body2"
+                                    color={
+                                      Math.max(
+                                        ...getSelectedCards()
+                                          .filter(
+                                            (c) =>
+                                              c.specialCategoryResult &&
+                                              c.hasAirmiles &&
+                                              c.pointsToAirmiles &&
+                                              c.airmilesValue
+                                          )
+                                          .map((c) => {
+                                            const scp =
+                                              100000 *
+                                              c.specialCategoryResult
+                                                .pointsPerRupee;
+                                            const ar = parseFloat(
+                                              c.pointsToAirmiles
+                                            );
+                                            const av = parseFloat(
+                                              c.airmilesValue
+                                            );
+                                            return scp * ar * av;
+                                          })
+                                      ) === rewardAmount
+                                        ? "success.main"
+                                        : "text.primary"
+                                    }
+                                  >
+                                    ₹
+                                    {rewardAmount.toLocaleString("en-IN", {
+                                      maximumFractionDigits: 0,
+                                    })}
+                                  </Typography>
+                                );
+                              })()
+                            ) : (
+                              <Typography
+                                variant="body2"
+                                color="text.secondary"
+                              >
+                                N/A
+                              </Typography>
+                            )}
+                          </TableCell>
+                        ))}
+                      </TableRow>
+                    )}
                   </TableBody>
                 </Table>
               </TableContainer>
@@ -1068,23 +1616,56 @@ function CreditCardCalculator() {
                     (best, current) => {
                       const currentBasicRate =
                         current.basicResult.rewardPercentage;
+                      const currentSpecialCategoryRate =
+                        current.specialCategoryResult
+                          ? current.specialCategoryResult.rewardPercentage
+                          : 0;
                       const currentAirmilesRate =
                         current.hasAirmiles && current.airmilesResult
                           ? current.airmilesResult.airmilesRewardPercentage
                           : 0;
+                      const currentSpecialCategoryAirmilesRate =
+                        current.specialCategoryResult &&
+                        current.hasAirmiles &&
+                        current.pointsToAirmiles &&
+                        current.airmilesValue
+                          ? ((current.specialCategoryResult.pointsPerRupee *
+                              parseFloat(current.pointsToAirmiles) *
+                              parseFloat(current.airmilesValue)) /
+                              1) *
+                            100
+                          : 0;
                       const currentBestRate = Math.max(
                         currentBasicRate,
-                        currentAirmilesRate
+                        currentSpecialCategoryRate,
+                        currentAirmilesRate,
+                        currentSpecialCategoryAirmilesRate
                       );
 
                       const bestBasicRate = best.basicResult.rewardPercentage;
+                      const bestSpecialCategoryRate = best.specialCategoryResult
+                        ? best.specialCategoryResult.rewardPercentage
+                        : 0;
                       const bestAirmilesRate =
                         best.hasAirmiles && best.airmilesResult
                           ? best.airmilesResult.airmilesRewardPercentage
                           : 0;
+                      const bestSpecialCategoryAirmilesRate =
+                        best.specialCategoryResult &&
+                        best.hasAirmiles &&
+                        best.pointsToAirmiles &&
+                        best.airmilesValue
+                          ? ((best.specialCategoryResult.pointsPerRupee *
+                              parseFloat(best.pointsToAirmiles) *
+                              parseFloat(best.airmilesValue)) /
+                              1) *
+                            100
+                          : 0;
                       const bestRate = Math.max(
                         bestBasicRate,
-                        bestAirmilesRate
+                        bestSpecialCategoryRate,
+                        bestAirmilesRate,
+                        bestSpecialCategoryAirmilesRate
                       );
 
                       return currentBestRate > bestRate ? current : best;
@@ -1092,18 +1673,48 @@ function CreditCardCalculator() {
                   );
 
                   const bestBasicRate = bestCard.basicResult.rewardPercentage;
+                  const bestSpecialCategoryRate = bestCard.specialCategoryResult
+                    ? bestCard.specialCategoryResult.rewardPercentage
+                    : 0;
                   const bestAirmilesRate =
                     bestCard.hasAirmiles && bestCard.airmilesResult
                       ? bestCard.airmilesResult.airmilesRewardPercentage
                       : 0;
+                  const bestSpecialCategoryAirmilesRate =
+                    bestCard.specialCategoryResult &&
+                    bestCard.hasAirmiles &&
+                    bestCard.pointsToAirmiles &&
+                    bestCard.airmilesValue
+                      ? ((bestCard.specialCategoryResult.pointsPerRupee *
+                          parseFloat(bestCard.pointsToAirmiles) *
+                          parseFloat(bestCard.airmilesValue)) /
+                          1) *
+                        100
+                      : 0;
                   const overallBestRate = Math.max(
                     bestBasicRate,
-                    bestAirmilesRate
+                    bestSpecialCategoryRate,
+                    bestAirmilesRate,
+                    bestSpecialCategoryAirmilesRate
                   );
-                  const rewardType =
-                    bestBasicRate >= bestAirmilesRate
-                      ? "Basic Rewards"
-                      : "Airmiles";
+
+                  let rewardType = "Basic Rewards";
+                  if (
+                    overallBestRate === bestSpecialCategoryAirmilesRate &&
+                    bestSpecialCategoryAirmilesRate > 0
+                  ) {
+                    rewardType = "Special → Airmiles";
+                  } else if (
+                    overallBestRate === bestSpecialCategoryRate &&
+                    bestSpecialCategoryRate > 0
+                  ) {
+                    rewardType = "Special Categories";
+                  } else if (
+                    overallBestRate === bestAirmilesRate &&
+                    bestAirmilesRate > 0
+                  ) {
+                    rewardType = "Basic → Airmiles";
+                  }
 
                   return (
                     <Typography variant="body1" color="success.dark">
